@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -11,37 +11,33 @@ export class CategoriesService {
     constructor(@InjectRepository(Category) private readonly categoryRepository: Repository<Category>) { }
 
     async create(createCategoryDto: CreateCategoryDto) {
-        const category = this.categoryRepository.create(createCategoryDto);
+        const isExist = await this.categoryRepository.findOne({ where: { title: createCategoryDto.title } });
+        if (isExist) throw new ConflictException("Category already exist!");
 
+        const category = this.categoryRepository.create(createCategoryDto);
         return await this.categoryRepository.save(category);
     }
 
-    findAll() {
-        return this.categoryRepository.find()
+    async findAll() {
+        return await this.categoryRepository.find()
     }
 
-    findOne(id: number) {
-        const category = this.categoryRepository.findOne({
+    async findOne(id: number) {
+        const categroy = await this.categoryRepository.findOne({
             where: { id }
         })
+        if (!categroy) throw new NotFoundException("Category not found!");
 
-        if (!category) throw new HttpException({ "error": "Category not found!" }, 404)
-
-        return category
+        return categroy;
     }
 
-    update(id: number, updateCategoryDto: UpdateCategoryDto) {
-
-        const category = this.findOne(id)
-
-        if (!category) {
-            return null
-        }
-
-        return this.categoryRepository.update(id, updateCategoryDto)
+    async update(id: number, updateCategoryDto: UpdateCategoryDto) {
+        await this.findOne(id);
+        return await this.categoryRepository.update(id, updateCategoryDto)
     }
 
-    remove(id: number) {
-        return this.categoryRepository.delete(id)
+    async remove(id: number) {
+        await this.findOne(id)
+        return await this.categoryRepository.delete(id)
     }
 }
