@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import AuthModule from './auth/auth.module';
 import { BlogsController } from './blogs/blogs.controller';
 import { BlogsModule } from './blogs/blogs.module';
 import { BlogsService } from './blogs/blogs.service';
@@ -18,6 +20,7 @@ import { UsersService } from './users/users.service';
 
 @Module({
     imports: [
+        PassportModule.register({ defaultStrategy: 'jwt' }),
         UsersModule,
         CategoriesModule,
         BlogsModule,
@@ -38,6 +41,7 @@ import { UsersService } from './users/users.service';
             }),
             inject: [ConfigService]
         }),
+        AuthModule,
     ],
     controllers: [
         AppController,
