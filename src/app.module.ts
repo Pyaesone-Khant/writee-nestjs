@@ -1,10 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthController } from './auth/auth.controller';
 import AuthModule from './auth/auth.module';
+import { AuthService } from './auth/auth.service';
+import { JwtGuard } from './auth/guards/jwt.guard';
+import { JwtStrategy } from './auth/strategies/jwt.strategy';
 import { BlogsController } from './blogs/blogs.controller';
 import { BlogsModule } from './blogs/blogs.module';
 import { BlogsService } from './blogs/blogs.service';
@@ -24,6 +29,7 @@ import { UsersService } from './users/users.service';
         UsersModule,
         CategoriesModule,
         BlogsModule,
+        AuthModule,
         ConfigModule.forRoot(),
         TypeOrmModule.forFeature([User, Blog, Category]),
         TypeOrmModule.forRootAsync({
@@ -41,19 +47,25 @@ import { UsersService } from './users/users.service';
             }),
             inject: [ConfigService]
         }),
-        AuthModule,
     ],
     controllers: [
         AppController,
         UsersController,
         CategoriesController,
-        BlogsController
+        BlogsController,
+        AuthController
     ],
     providers: [
         AppService,
         UsersService,
         CategoriesService,
         BlogsService,
+        AuthService,
+        {
+            provide: APP_GUARD,
+            useClass: JwtGuard
+        },
+        JwtStrategy,
     ],
 })
 export class AppModule { }
