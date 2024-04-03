@@ -8,7 +8,6 @@ import { AppService } from './app.service';
 import { AuthController } from './auth/auth.controller';
 import AuthModule from './auth/auth.module';
 import { AuthService } from './auth/auth.service';
-import { JwtGuard } from './auth/guards/jwt.guard';
 import { JwtStrategy } from './auth/strategies/jwt.strategy';
 import { BlogsController } from './blogs/blogs.controller';
 import { BlogsModule } from './blogs/blogs.module';
@@ -18,6 +17,7 @@ import { CategoriesController } from './categories/categories.controller';
 import { CategoriesModule } from './categories/categories.module';
 import { CategoriesService } from './categories/categories.service';
 import { Category } from './categories/entities/category.entity';
+import { AuthGuard } from './guards/auth/auth.guard';
 import { User } from './users/entities/user.entity';
 import { UsersController } from './users/users.controller';
 import { UsersModule } from './users/users.module';
@@ -31,6 +31,11 @@ import { UsersService } from './users/users.service';
         BlogsModule,
         AuthModule,
         ConfigModule.forRoot(),
+        // JwtModule.register({
+        //     global: true,
+        //     secret: process.env.SECRET_KEY,
+        //     signOptions: { expiresIn: "1d" }
+        // }),
         TypeOrmModule.forFeature([User, Blog, Category]),
         TypeOrmModule.forRootAsync({
             imports: [ConfigModule],
@@ -63,9 +68,9 @@ import { UsersService } from './users/users.service';
         AuthService,
         {
             provide: APP_GUARD,
-            useClass: JwtGuard
+            useClass: AuthGuard
         },
-        JwtStrategy,
+        JwtStrategy
     ],
 })
 export class AppModule { }

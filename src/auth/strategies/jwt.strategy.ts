@@ -12,8 +12,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             ignoreExpiration: false,
             secretOrKey: process.env.SECRET_KEY || "secret"
         })
-
-        console.log()
     }
 
     async validate(email: string, password: string): Promise<User> {

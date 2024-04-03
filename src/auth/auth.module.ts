@@ -21,7 +21,8 @@ import { LocalStrategy } from './strategies/local.strategy';
                 }
             }),
             inject: [ConfigService]
-        })],
+        }),
+    ],
     controllers: [
         AuthController],
     providers: [AuthService, JwtStrategy, LocalStrategy],

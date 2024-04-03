@@ -1,6 +1,6 @@
 import { IsEmail } from "class-validator";
 import { Blog } from "src/blogs/entities/blog.entity";
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: "users" })
 export class User {
@@ -29,6 +29,6 @@ export class User {
     @Column({ default: null })
     otp_expiration: string;
 
-    @ManyToMany(() => Blog, blog => blog.id)
+    @OneToMany(() => Blog, blog => blog.id)
     blogs: Blog[];
 }

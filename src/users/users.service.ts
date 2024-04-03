@@ -18,11 +18,11 @@ export class UsersService {
     }
 
     async findAll() {
-        return await this.userRespository.find();
+        return await this.userRespository.find({ select: ["id", "image", "name", "email", "is_verified", "blogs"] });
     }
 
     async findOne(id: number) {
-        const user = await this.userRespository.findOne({ where: { id } });
+        const user = await this.userRespository.findOne({ where: { id }, select: ["id", "image", "name", "email", "is_verified", "blogs"] });
         if (!user) throw new NotFoundException("User not found!");
         return user;
     }
