@@ -11,9 +11,6 @@ export class CreateBlogDto {
     image?: any;
 
     @IsNotEmpty()
-    user_id: number;
-
-    @IsNotEmpty()
     @IsArray()
     category_ids: number[];
 }

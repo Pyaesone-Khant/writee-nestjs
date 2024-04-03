@@ -9,35 +9,39 @@ import { User } from './entities/user.entity';
 export class UsersService {
 
     constructor(
-        @InjectRepository(User) private readonly userRespository: Repository<User>
+        @InjectRepository(User) private readonly userRepository: Repository<User>
     ) { }
 
     async create(createUserDto: CreateUserDto) {
-        const user = this.userRespository.create(createUserDto);
-        return await this.userRespository.save(user);
+        const user = this.userRepository.create(createUserDto);
+        return await this.userRepository.save(user);
     }
 
     async findAll() {
-        return await this.userRespository.find({ select: ["id", "image", "name", "email", "is_verified", "blogs"] });
+        return await this.userRepository.find({ select: ["id", "image", "name", "email", "is_verified"] });
     }
 
     async findOne(id: number) {
-        const user = await this.userRespository.findOne({ where: { id }, select: ["id", "image", "name", "email", "is_verified", "blogs"] });
+        const user = await this.userRepository.findOne({
+            where: { id }, select: ["id", "image", "name", "email", "is_verified", "blogs"], relations: {
+                blogs: true
+            }
+        });
         if (!user) throw new NotFoundException("User not found!");
         return user;
     }
 
     async update(id: number, updateUserDto: UpdateUserDto) {
         await this.findOne(id);
-        return await this.userRespository.update(id, updateUserDto);
+        return await this.userRepository.update(id, updateUserDto);
     }
 
     async remove(id: number) {
         await this.findOne(id);
-        return await this.userRespository.delete(id);
+        return await this.userRepository.delete(id);
     }
 
     async findByEmail(email: string) {
-        return await this.userRespository.findOne({ where: { email } });
+        return await this.userRepository.findOne({ where: { email } });
     }
 }

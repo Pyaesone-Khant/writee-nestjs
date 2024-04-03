@@ -1,18 +1,28 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Category } from 'src/categories/entities/category.entity';
+import { User } from 'src/users/entities/user.entity';
+import { In, Repository } from 'typeorm';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
 import { Blog } from './entities/blog.entity';
 
 @Injectable()
 export class BlogsService {
-    constructor(@InjectRepository(Blog) private readonly blogRepository: Repository<Blog>) { }
+    constructor(
+        @InjectRepository(Blog) private readonly blogRepository: Repository<Blog>,
+        @InjectRepository(Category) private readonly categoryRepository: Repository<Category>,
+        @InjectRepository(User) private readonly userRepository: Repository<User>
+    ) { }
 
-    async create(createBlogDto: CreateBlogDto) {
+    async create(createBlogDto: CreateBlogDto, user_id: number) {
         const isDuplicate = await this.findByTitle(createBlogDto.title)
         if (isDuplicate) throw new ConflictException("Blog already exists!")
-        const blog = this.blogRepository.create(createBlogDto);
+
+        const user = await this.userRepository.findOne({ where: { id: user_id }, select: ["id", "name", "email", "image"] });
+        const categories = await this.categoryRepository.find({ where: { id: In(createBlogDto.category_ids) } })
+
+        const blog = this.blogRepository.create({ ...createBlogDto, user, categories });
         return await this.blogRepository.save(blog)
     }
 

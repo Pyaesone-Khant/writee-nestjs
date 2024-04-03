@@ -29,6 +29,6 @@ export class User {
     @Column({ default: null })
     otp_expiration: string;
 
-    @OneToMany(() => Blog, blog => blog.id)
+    @OneToMany(() => Blog, blog => blog.user)
     blogs: Blog[];
 }

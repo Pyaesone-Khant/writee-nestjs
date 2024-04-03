@@ -19,15 +19,15 @@ export class CategoriesService {
     }
 
     async findAll() {
-        return await this.categoryRepository.find()
+        return await this.categoryRepository.find({ order: { id: "DESC" } })
     }
 
     async findOne(id: number) {
-        const categroy = await this.categoryRepository.findOne({
+        const category = await this.categoryRepository.findOne({
             where: { id }
         })
-        if (!categroy) throw new NotFoundException("Category not found!");
-        return categroy;
+        if (!category) throw new NotFoundException("Category not found!");
+        return category;
     }
 
     async update(id: number, updateCategoryDto: UpdateCategoryDto) {

@@ -1,6 +1,6 @@
 import { Category } from "src/categories/entities/category.entity";
 import { User } from "src/users/entities/user.entity";
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: "blogs" })
 export class Blog {
@@ -31,6 +31,5 @@ export class Blog {
     categories: Category[];
 
     @ManyToOne(() => User, user => user.id)
-    @JoinColumn({ name: "id" })
     user: User
 } 
