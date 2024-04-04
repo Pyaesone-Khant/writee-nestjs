@@ -17,6 +17,7 @@ import { CategoriesController } from './categories/categories.controller';
 import { CategoriesModule } from './categories/categories.module';
 import { CategoriesService } from './categories/categories.service';
 import { Category } from './categories/entities/category.entity';
+import { EmailModule } from './email/email.module';
 import { AuthGuard } from './guards/auth/auth.guard';
 import { User } from './users/entities/user.entity';
 import { UsersController } from './users/users.controller';
@@ -30,12 +31,9 @@ import { UsersService } from './users/users.service';
         CategoriesModule,
         BlogsModule,
         AuthModule,
-        ConfigModule.forRoot(),
-        // JwtModule.register({
-        //     global: true,
-        //     secret: process.env.SECRET_KEY,
-        //     signOptions: { expiresIn: "1d" }
-        // }),
+        ConfigModule.forRoot({
+            isGlobal: true
+        }),
         TypeOrmModule.forFeature([User, Blog, Category]),
         TypeOrmModule.forRootAsync({
             imports: [ConfigModule],
@@ -52,6 +50,7 @@ import { UsersService } from './users/users.service';
             }),
             inject: [ConfigService]
         }),
+        EmailModule,
     ],
     controllers: [
         AppController,

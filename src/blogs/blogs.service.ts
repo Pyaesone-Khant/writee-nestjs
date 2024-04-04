@@ -28,11 +28,18 @@ export class BlogsService {
     }
 
     async findAll() {
-        return await this.blogRepository.find({ relations: ['categories', 'user'] });
+
+        return await this.blogRepository.createQueryBuilder("blog").leftJoinAndSelect("blog.categories", "categories").leftJoinAndSelect("blog.user", "user").select(["blog.id", "blog.title", "blog.description", "blog.image", "categories", "user.id", "user.name", "user.email", "user.image"]).getMany();
     }
 
     async findOne(id: number) {
-        const blog = await this.blogRepository.findOne({ where: { id }, relations: ['categories', 'user'] });
+        const blog = await this.blogRepository.createQueryBuilder('blog')
+            .leftJoinAndSelect('blog.categories', 'categories')
+            .leftJoinAndSelect('blog.user', 'user')
+            .select(['blog.id', 'blog.title', 'blog.description', 'blog.image', 'categories', 'user.id', 'user.name', 'user.email', 'user.image'])
+            .where('blog.id = :id', { id })
+            .getOne();
+
         if (!blog) throw new NotFoundException("Blog not found!");
         return blog;
     }

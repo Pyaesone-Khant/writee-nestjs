@@ -31,5 +31,10 @@ export class Blog {
     categories: Category[];
 
     @ManyToOne(() => User, user => user.id)
-    user: User
+    user: {
+        id: number;
+        name: string;
+        email: string;
+        image: string;
+    }
 } 
