@@ -2,7 +2,7 @@
 export class SendMailDto {
     subject: string;
 
-    message: string;
+    otp: string;
 
     user: {
         name: string;

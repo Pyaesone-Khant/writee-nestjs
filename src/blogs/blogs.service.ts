@@ -57,4 +57,25 @@ export class BlogsService {
     async findByTitle(title: string) {
         return await this.blogRepository.findOne({ where: { title } });
     }
+
+    async findByUser(user_id: number) {
+        const blogs = await this.blogRepository.createQueryBuilder('blog').leftJoinAndSelect('blog.categories', 'categories').leftJoinAndSelect('blog.user', 'user').where('user.id = :user_id', { user_id }).select(['blog.id', 'blog.title', 'blog.description', 'blog.image', 'categories']).getMany();
+        return blogs;
+    }
+
+    async findByCategory(category_id: number) {
+        const blogs = await this.blogRepository.createQueryBuilder('blog').leftJoinAndSelect('blog.categories', 'categories').leftJoinAndSelect('blog.user', 'user').where('categories.id = :category_id', { category_id }).select(['blog.id', 'blog.title', 'blog.description', 'blog.image', 'categories', 'user.id', 'user.name', 'user.email', 'user.image']).getMany();
+
+        // get all categories related to each blog
+        for (let blog of blogs) {
+            const categories = await this.categoryRepository.createQueryBuilder('category')
+                .innerJoin('category.blogs', 'blog')
+                .where('blog.id = :blog_id', { blog_id: blog.id })
+                .getMany();
+
+            blog.categories = categories;
+        }
+
+        return blogs;
+    }
 }

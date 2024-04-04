@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { BlogsService } from 'src/blogs/blogs.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
@@ -7,6 +8,7 @@ import { UsersService } from './users.service';
 export class UsersController {
     constructor(
         private readonly usersService: UsersService,
+        private readonly blogsService: BlogsService
     ) { }
 
     @Post()
@@ -17,6 +19,11 @@ export class UsersController {
     @Get()
     findAll() {
         return this.usersService.findAll();
+    }
+
+    @Get(':id/blogs')
+    findBlogs(@Param('id') id: string) {
+        return this.blogsService.findByUser(+id);
     }
 
     @Get(':id')

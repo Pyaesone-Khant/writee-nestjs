@@ -22,11 +22,10 @@ export class UsersService {
     }
 
     async findOne(id: number) {
-        const user = await this.userRepository.findOne({
-            where: { id }, select: ["id", "image", "name", "email", "is_verified", "blogs"], relations: {
-                blogs: true
-            }
-        });
+        //const user = await this.userRepository.createQueryBuilder("user").leftJoinAndSelect("user.blogs", "blogs").leftJoinAndSelect("blogs.categories", "categories").where("user.id = :id", { id }).getOne();
+
+        const user = await this.userRepository.findOne({ where: { id }, select: ["id", "image", "name", "email", "is_verified"] });
+
         if (!user) throw new NotFoundException("User not found!");
         return user;
     }

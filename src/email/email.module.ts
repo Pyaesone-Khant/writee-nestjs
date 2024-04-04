@@ -13,7 +13,7 @@ import { EmailService } from './email.service';
                 transport: {
                     host: config.get("MAIL_HOST"),
                     port: config.get("MAIL_PORT"),
-                    sercure: false,
+                    secure: false,
                     auth: {
                         user: config.get("MAIL_USER"),
                         pass: config.get("MAIL_PASS")

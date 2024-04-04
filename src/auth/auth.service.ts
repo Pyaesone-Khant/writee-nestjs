@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import * as crypto from "crypto";
 import { EmailService } from 'src/email/email.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { User } from 'src/users/entities/user.entity';
@@ -33,17 +34,34 @@ export class AuthService {
         return { accessToken: this.jwtService.sign(payload), expiredAt }
     }
 
-    async register(user: CreateUserDto) {
-        const isUserAlreadyExisted: User = await this.usersService.findByEmail(user.email);
-        if (isUserAlreadyExisted) throw new BadRequestException("Email already exists!");
-        const hashedPassword = await this.hashPassword(user.password)
+    async register(createUserDto: CreateUserDto) {
+        const { email, password } = createUserDto;
+        const user: User = await this.usersService.findByEmail(email);
+        if (user && user?.is_verified) throw new BadRequestException("Email already exists!");
+
         const { otp, otp_expiration } = this.generateOtp();
-        const newUser: CreateUserDto = { ...user, password: hashedPassword, otp, otp_expiration };
+
+
+        // If user exists but not verified
+        if (user && !user?.is_verified) {
+            await this.usersService.update(user.id, { otp, otp_expiration });
+            const sendMailDto = {
+                user: { email, name: user.name },
+                subject: "Email Verification",
+                otp,
+            }
+            await this.emailService.sendEmail(sendMailDto);
+            return { message: "OTP Code has been sent your email address!" }
+        }
+
+        // If user not exists
+        const hashedPassword = await this.hashPassword(password)
+        const newUser: CreateUserDto = { ...createUserDto, password: hashedPassword, otp, otp_expiration };
         await this.usersService.create(newUser)
         const sendMailDto = {
             user: newUser,
             subject: "Email Verification",
-            message: `Your OTP is ${otp}!`
+            otp,
         }
         await this.emailService.sendEmail(sendMailDto)
         return { message: "OTP Code has been sent your email address!" }
@@ -81,7 +99,7 @@ export class AuthService {
             const sendMailDto = {
                 user: { email: newEmail, name: user.name },
                 subject: "Email Verification",
-                message: `Your OTP is ${otp}!`
+                otp,
             }
             await this.emailService.sendEmail(sendMailDto);
 
@@ -99,7 +117,7 @@ export class AuthService {
             const sendMailDto = {
                 user: { email: email, name: user.name },
                 subject: "Email Verification",
-                message: `Your OTP is ${otp}!`
+                otp,
             }
             await this.emailService.sendEmail(sendMailDto);
             return { message: "OTP sent successfully!" };
@@ -129,7 +147,7 @@ export class AuthService {
         const sendMailDto = {
             user: { email: email, name: user.name },
             subject: "Email Verification",
-            message: `Your OTP is ${otp}!`
+            otp,
         }
         await this.emailService.sendEmail(sendMailDto);
 
