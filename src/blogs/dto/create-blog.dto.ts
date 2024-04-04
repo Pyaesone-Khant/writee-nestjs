@@ -1,14 +1,14 @@
-import { IsArray, IsNotEmpty } from "class-validator";
+import { IsArray, IsNotEmpty, IsOptional } from "class-validator";
 
 export class CreateBlogDto {
-
     @IsNotEmpty()
     title: string;
 
     @IsNotEmpty()
     description: string;
 
-    image?: any;
+    @IsOptional()
+    image: any;
 
     @IsNotEmpty()
     @IsArray()

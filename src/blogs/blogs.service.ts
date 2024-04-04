@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from 'src/categories/entities/category.entity';
 import { User } from 'src/users/entities/user.entity';
@@ -20,6 +20,7 @@ export class BlogsService {
         if (isDuplicate) throw new ConflictException("Blog already exists!")
 
         const user = await this.userRepository.findOne({ where: { id: user_id }, select: ["id", "name", "email", "image"] });
+        if (!user) throw new UnauthorizedException();
         const categories = await this.categoryRepository.find({ where: { id: In(createBlogDto.category_ids) } })
 
         const blog = this.blogRepository.create({ ...createBlogDto, user, categories });

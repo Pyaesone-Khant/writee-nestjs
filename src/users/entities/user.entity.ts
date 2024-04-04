@@ -1,4 +1,4 @@
-import { IsEmail } from "class-validator";
+import { IsEmail, IsStrongPassword } from "class-validator";
 import { Blog } from "src/blogs/entities/blog.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
@@ -14,6 +14,7 @@ export class User {
     @Column({ nullable: false, unique: true })
     email: string;
 
+    @IsStrongPassword()
     @Column({ nullable: false })
     password: string;
 

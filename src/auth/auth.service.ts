@@ -1,9 +1,12 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
+import { LoginUserDto } from './dto/login-user.dto';
+import { RequestOtpDto } from './dto/request-otp.dto';
+import { VerifyOtpDto } from './dto/verify-otp.dto';
 
 @Injectable()
 export class AuthService {
@@ -12,12 +15,15 @@ export class AuthService {
         private jwtService: JwtService
     ) { }
 
-    async validateUser(email: string, password: string) {
+    async validateUser(loginUserDto: LoginUserDto) {
+        const { email, password } = loginUserDto
         const user = await this.usersService.findByEmail(email)
         if (!user) throw new BadRequestException("Email or password is wrong!");
-
         const isPasswordMatch = bcrypt.compareSync(password, user.password);
         if (!isPasswordMatch) throw new BadRequestException("Email or password is wrong!");
+
+        if (user.is_verified === false) throw new BadRequestException("Email not verified!")
+
         return user;
     }
 
@@ -31,12 +37,74 @@ export class AuthService {
         const isUserAlreadyExisted: User = await this.usersService.findByEmail(user.email);
         if (isUserAlreadyExisted) throw new BadRequestException("Email already exists!");
         const hashedPassword = await this.hashPassword(user.password)
-        const newUser: CreateUserDto = { ...user, password: hashedPassword };
+        const { otp, otp_expiration } = this.generateOtp();
+        const newUser: CreateUserDto = { ...user, password: hashedPassword, otp, otp_expiration };
         return await this.usersService.create(newUser)
     }
 
     async hashPassword(password: string): Promise<string> {
         return bcrypt.hashSync(password, 10);
+    }
+
+    generateOtp() {
+        const numberArr = new Uint32Array(10);
+        const randomArrIndex = Math.floor(Math.random() * numberArr.length);
+        const otp = crypto.getRandomValues(numberArr)[randomArrIndex].toString().slice(0, 6);
+        const otp_expiration = (Date.now() + (3 * 60 * 1000)).toString();
+        return { otp, otp_expiration }
+    }
+
+    isVerified(user: User) {
+        if (user.is_verified) throw new BadRequestException("Email already verified!");
+    }
+
+
+    async requestOtp(requestOtpDto: RequestOtpDto) {
+        const newEmail = requestOtpDto?.newEmail;
+        if (newEmail) {
+            const isEmailAlreadyExist = await this.usersService.findByEmail(newEmail);
+            if (isEmailAlreadyExist) throw new BadRequestException("Email already exists!");
+
+            const user = await this.usersService.findByEmail(requestOtpDto.email);
+            if (!user) throw new NotFoundException("Email not found!");
+
+            const { otp, otp_expiration } = this.generateOtp();
+            await this.usersService.update(user.id, { otp, otp_expiration, is_verified: false, email: newEmail });
+
+            return { otp, message: "OTP sent successfully to your new email address!" };
+        } else {
+            const { email } = requestOtpDto;
+            const user = await this.usersService.findByEmail(email);
+            if (!user) throw new NotFoundException("Email not found!");
+
+            this.isVerified(user);
+
+            const { otp, otp_expiration } = this.generateOtp();
+            await this.usersService.update(user.id, { otp, otp_expiration, is_verified: false });
+            return { otp, message: "OTP sent successfully!" };
+        }
+    }
+
+    async verifyOtp(verifyOtp: VerifyOtpDto) {
+        const { otp, email } = verifyOtp;
+        const user = await this.usersService.findByEmail(email);
+        if (!user) throw new NotFoundException("Email not found!");
+        this.isVerified(user);
+        if (+user.otp_expiration < Date.now()) throw new BadRequestException("OTP expired!");
+
+        if (user.otp !== otp) throw new BadRequestException("Invalid OTP!");
+        await this.usersService.update(user.id, { otp: null, otp_expiration: null, is_verified: true });
+
+        return { message: "Email verified successfully!" };
+    }
+
+    async resentOtp(email: string) {
+        const { otp, otp_expiration } = this.generateOtp();
+        const user = await this.usersService.findByEmail(email);
+        if (!user) throw new NotFoundException("Email not found!");
+        this.isVerified(user);
+        await this.usersService.update(user.id, { otp, otp_expiration });
+        return { otp, message: "OTP resent successfully!" };
     }
 
 }
