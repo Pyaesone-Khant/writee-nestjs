@@ -129,9 +129,9 @@ export class AuthService {
         const user = await this.usersService.findByEmail(email);
         if (!user) throw new NotFoundException("Email not found!");
         this.isVerified(user);
-        if (+user.otp_expiration < Date.now()) throw new BadRequestException("OTP expired!");
-
         if (user.otp !== otp) throw new BadRequestException("Invalid OTP!");
+
+        if (+user.otp_expiration < Date.now()) throw new BadRequestException("OTP expired!");
         await this.usersService.update(user.id, { otp: null, otp_expiration: null, is_verified: true });
 
         return { message: "Email verified successfully!" };

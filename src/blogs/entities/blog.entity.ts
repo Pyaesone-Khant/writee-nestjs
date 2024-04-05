@@ -10,7 +10,7 @@ export class Blog {
     @Column({ nullable: false, unique: true })
     title: string;
 
-    @Column({ nullable: false })
+    @Column("longtext", { nullable: false })
     description: string;
 
     @Column({ default: null })

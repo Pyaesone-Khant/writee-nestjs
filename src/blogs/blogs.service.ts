@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from 'src/categories/entities/category.entity';
 import { User } from 'src/users/entities/user.entity';
@@ -19,8 +19,11 @@ export class BlogsService {
         const isDuplicate = await this.findByTitle(createBlogDto.title)
         if (isDuplicate) throw new ConflictException("Blog already exists!")
 
-        const user = await this.userRepository.findOne({ where: { id: user_id }, select: ["id", "name", "email", "image"] });
+        const user = await this.userRepository.findOne({ where: { id: user_id }, select: ["id", "image", "name", "email"] });
         if (!user) throw new UnauthorizedException();
+
+        const areIdsValid = await this.areIdsValid(createBlogDto.category_ids)
+        if (!areIdsValid) throw new BadRequestException("Some category ids do not exist!")
         const categories = await this.categoryRepository.find({ where: { id: In(createBlogDto.category_ids) } })
 
         const blog = this.blogRepository.create({ ...createBlogDto, user, categories });
@@ -59,15 +62,23 @@ export class BlogsService {
     }
 
     async findByUser(user_id: number) {
+
+        const user = await this.userRepository.findOne({ where: { id: user_id } });
+        if (!user) throw new NotFoundException("User not found!")
+
         const blogs = await this.blogRepository.createQueryBuilder('blog').leftJoinAndSelect('blog.categories', 'categories').leftJoinAndSelect('blog.user', 'user').where('user.id = :user_id', { user_id }).select(['blog.id', 'blog.title', 'blog.description', 'blog.image', 'categories']).getMany();
         return blogs;
     }
 
     async findByCategory(category_id: number) {
+
+        const category = await this.categoryRepository.findOne({ where: { id: category_id } })
+        if (!category) throw new NotFoundException("Category not found!")
+
         const blogs = await this.blogRepository.createQueryBuilder('blog').leftJoinAndSelect('blog.categories', 'categories').leftJoinAndSelect('blog.user', 'user').where('categories.id = :category_id', { category_id }).select(['blog.id', 'blog.title', 'blog.description', 'blog.image', 'categories', 'user.id', 'user.name', 'user.email', 'user.image']).getMany();
 
         // get all categories related to each blog
-        for (let blog of blogs) {
+        for (const blog of blogs) {
             const categories = await this.categoryRepository.createQueryBuilder('category')
                 .innerJoin('category.blogs', 'blog')
                 .where('blog.id = :blog_id', { blog_id: blog.id })
@@ -75,7 +86,11 @@ export class BlogsService {
 
             blog.categories = categories;
         }
-
         return blogs;
+    }
+
+    async areIdsValid(ids: number[]) {
+        const categories = await this.categoryRepository.createQueryBuilder("category").whereInIds(ids).getMany()
+        return ids.length === categories.length;
     }
 }

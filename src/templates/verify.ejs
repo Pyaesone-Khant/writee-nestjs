@@ -29,10 +29,10 @@
 
         p {
             color: #666;
+            font-size: 15px;
         }
 
         .footer {
-            margin-top: 20px;
             color: #888;
         }
     </style>
@@ -41,12 +41,13 @@
 <body>
     <div class="container">
         <h2>Welcome to <span style="color: #3f82f6; font-weight: 700;">Writee</span>, <%= username %> </h2>
-        <p style="text-indent: 2rem;">Please verify your email address by entering the OTP code below:</p>
+        <p>To finish setting up your Writee account, we just need to make sure this email address is yours.</p>
+        <p>To verify your email address, please use the OTP code below:</p>
         <p style="text-align: center; font-size: 24px;"><strong style="color: #333;"><%= otp %></strong></p>
-        <p>If you didn't request this OTP, you can safely ignore this email.</p>
+        <p>If you didn't request this OTP, you can safely ignore this email. Someone else might have typed your email address by mistake.</p>
         <div class="footer">
             <p>Thanks,</p>
-            <p>Writee Team.</p>
+            <p style="margin-top: -8px;">Writee Team</p>
         </div>
     </div>
 </body>
