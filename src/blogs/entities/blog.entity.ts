@@ -1,6 +1,7 @@
 import { Category } from "src/categories/entities/category.entity";
+import { Comment } from "src/comment/entities/comment.entity";
 import { User } from "src/users/entities/user.entity";
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: "blogs" })
 export class Blog {
@@ -37,4 +38,7 @@ export class Blog {
         email: string;
         image: string;
     }
+
+    @OneToMany(() => Comment, cmt => cmt.id)
+    comments: Comment[]
 } 

@@ -23,6 +23,7 @@ import { User } from './users/entities/user.entity';
 import { UsersController } from './users/users.controller';
 import { UsersModule } from './users/users.module';
 import { UsersService } from './users/users.service';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
     imports: [
@@ -51,6 +52,7 @@ import { UsersService } from './users/users.service';
             inject: [ConfigService]
         }),
         EmailModule,
+        CommentModule,
     ],
     controllers: [
         AppController,
