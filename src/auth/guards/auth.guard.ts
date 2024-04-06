@@ -5,25 +5,21 @@ import { Request } from "express";
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(private jwtService: JwtService) { }
-
-
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const accessToken = this.extractToken(request)
+    const isRefreshToken = request.headers.isRefreshToken;
 
     if (!accessToken) throw new UnauthorizedException();
 
     try {
-      const payload = this.jwtService.verifyAsync(accessToken, { secret: process.env.JWT_SECRET });
-
+      const payload = await this.jwtService.verifyAsync(accessToken, { secret: process.env.JWT_SECRET, ignoreExpiration: isRefreshToken });
       request["user"] = payload;
-
+      request["expTime"] = payload?.exp;
     } catch (error) {
       throw new UnauthorizedException();
     }
-
     return true;
-
   }
 
   private extractToken(request: Request): string | undefined {

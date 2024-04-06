@@ -11,8 +11,8 @@ export class Comment {
     comment: string;
 
     @ManyToOne(() => Blog, blog => blog.id)
-    blog: Blog;
+    blog: Blog
 
     @ManyToOne(() => User, user => user.id)
-    user: User;
+    user: User
 }

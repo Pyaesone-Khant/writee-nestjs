@@ -18,20 +18,19 @@ export class AuthService {
         private emailService: EmailService
     ) { }
 
-    async validateUser(loginUserDto: LoginUserDto) {
-        const { email, password } = loginUserDto
+    async validateUser(payload: any) {
+        const { email } = payload;
         const user = await this.usersService.findByEmail(email)
         if (!user) throw new BadRequestException("Email or password is wrong!");
-        const isPasswordMatch = bcrypt.compareSync(password, user.password);
-        if (!isPasswordMatch) throw new BadRequestException("Email or password is wrong!");
         if (user.is_verified === false) throw new BadRequestException("Email not verified!")
         return user;
     }
 
-    async login(user: User) {
-        const expiredAt = Date.now() + (24 * 60 * 60 * 1000);
-        const payload = { email: user.email, id: user.id }
-        return { accessToken: this.jwtService.sign(payload), expiredAt }
+    async login(loginUserDto: LoginUserDto) {
+        const user = await this.validateUser(loginUserDto);
+        const isPasswordMatch = bcrypt.compareSync(loginUserDto.password, user.password);
+        if (!isPasswordMatch) throw new BadRequestException("Email or password is wrong!");
+        return await this.generateAccessToken(user);
     }
 
     async register(createUserDto: CreateUserDto) {
@@ -67,6 +66,21 @@ export class AuthService {
         return { message: "OTP Code has been sent your email address!" }
     }
 
+    async refreshToken(user: any) {
+        const { id, exp } = user
+        const userFromDb = await this.usersService.findOne(+id);
+        if (!userFromDb) throw new NotFoundException("User not found!");
+        const isTokenExpired = exp * 1000 < Date.now();
+        if (!isTokenExpired) throw new BadRequestException("Token not expired!");
+        return await this.generateAccessToken(userFromDb);
+    }
+
+    async generateAccessToken(user: User) {
+        const expiredAt = Date.now() + (24 * 60 * 60 * 1000);
+        const payload = { email: user.email, id: user.id }
+        return { accessToken: this.jwtService.sign(payload), expiredAt }
+    }
+
     async hashPassword(password: string): Promise<string> {
         return bcrypt.hashSync(password, 10);
     }
@@ -82,7 +96,6 @@ export class AuthService {
     isVerified(user: User) {
         if (user.is_verified) throw new BadRequestException("Email already verified!");
     }
-
 
     async requestOtp(requestOtpDto: RequestOtpDto) {
         const newEmail = requestOtpDto?.newEmail;

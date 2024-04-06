@@ -1,22 +1,32 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UnauthorizedException } from '@nestjs/common';
+import { Public } from 'src/decorators/public.decorator';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 
-@Controller('comment')
+@Controller('comments')
 export class CommentController {
-  constructor(private readonly commentService: CommentService) {}
+  constructor(private readonly commentService: CommentService) { }
 
   @Post()
-  create(@Body() createCommentDto: CreateCommentDto) {
+  create(@Req() request: any, @Body() createCommentDto: CreateCommentDto) {
+    createCommentDto.userId = request.user?.id;
     return this.commentService.create(createCommentDto);
   }
 
+  @Public()
   @Get()
   findAll() {
     return this.commentService.findAll();
   }
 
+  @Public()
+  @Get("blog/:blogId")
+  findCommentsByBlogId(@Param("blogId") blogId: string) {
+    return this.commentService.findCommentsByBlogId(+blogId)
+  }
+
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.commentService.findOne(+id);
@@ -28,7 +38,9 @@ export class CommentController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Req() request: any, @Param('id') id: string) {
+    const userId = request.user?.id;
+    if (!this.commentService.isUserAuthorized(+userId, +id)) throw new UnauthorizedException("You are not authorized to delete this comment!");
     return this.commentService.remove(+id);
   }
 }

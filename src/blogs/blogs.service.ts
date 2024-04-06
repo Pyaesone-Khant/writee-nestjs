@@ -31,7 +31,6 @@ export class BlogsService {
     }
 
     async findAll() {
-
         return await this.blogRepository.createQueryBuilder("blog").leftJoinAndSelect("blog.categories", "categories").leftJoinAndSelect("blog.user", "user").select(["blog.id", "blog.title", "blog.description", "blog.image", "categories", "user.id", "user.name", "user.email", "user.image"]).getMany();
     }
 
@@ -65,7 +64,6 @@ export class BlogsService {
 
         const user = await this.userRepository.findOne({ where: { id: user_id } });
         if (!user) throw new NotFoundException("User not found!")
-
         const blogs = await this.blogRepository.createQueryBuilder('blog').leftJoinAndSelect('blog.categories', 'categories').leftJoinAndSelect('blog.user', 'user').where('user.id = :user_id', { user_id }).select(['blog.id', 'blog.title', 'blog.description', 'blog.image', 'categories']).getMany();
         return blogs;
     }
