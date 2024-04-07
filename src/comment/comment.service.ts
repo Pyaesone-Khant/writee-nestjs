@@ -52,10 +52,8 @@ export class CommentService {
   }
 
   async findCommentsByBlogId(blogId: number) {
-
     const blog = await this.blogsRepository.findOne({ where: { id: blogId } });
     if (!blog) throw new NotFoundException("Blog not found!");
-
     return await this.commentRepository.createQueryBuilder("comment")
       .leftJoinAndSelect("comment.user", "user")
       .select(['comment.id', 'comment.comment', 'user.id', 'user.name', 'user.email', 'user.image',])

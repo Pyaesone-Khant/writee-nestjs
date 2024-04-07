@@ -1,5 +1,6 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { Public } from 'src/decorators/public.decorator';
+import { CommentGuard } from 'src/guards/comment.guard';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
@@ -33,14 +34,14 @@ export class CommentController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto) {
+  @UseGuards(CommentGuard)
+  update(@Req() request: any, @Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto) {
     return this.commentService.update(+id, updateCommentDto);
   }
 
   @Delete(':id')
+  @UseGuards(CommentGuard)
   remove(@Req() request: any, @Param('id') id: string) {
-    const userId = request.user?.id;
-    if (!this.commentService.isUserAuthorized(+userId, +id)) throw new UnauthorizedException("You are not authorized to delete this comment!");
     return this.commentService.remove(+id);
   }
 }

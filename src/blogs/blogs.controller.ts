@@ -1,5 +1,6 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Req } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { Public } from "src/decorators/public.decorator";
+import { BlogGuard } from 'src/guards/blog.guard';
 import { BlogsService } from './blogs.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
@@ -30,13 +31,15 @@ export class BlogsController {
         return this.blogsService.findOne(+id);
     }
 
+    @UseGuards(BlogGuard)
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateBlogDto: UpdateBlogDto) {
+    update(@Req() request: any, @Param('id') id: string, @Body() updateBlogDto: UpdateBlogDto) {
         return this.blogsService.update(+id, updateBlogDto);
     }
 
+    @UseGuards(BlogGuard)
     @Delete(':id')
-    remove(@Param('id') id: string) {
+    remove(@Req() request: any, @Param('id') id: string) {
         return this.blogsService.remove(+id);
     }
 }

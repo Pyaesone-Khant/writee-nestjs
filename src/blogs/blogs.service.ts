@@ -91,4 +91,9 @@ export class BlogsService {
         const categories = await this.categoryRepository.createQueryBuilder("category").whereInIds(ids).getMany()
         return ids.length === categories.length;
     }
+
+    async isUserAuthorized(userId: number, blogId: number) { 
+        const blog = await this.findOne(blogId)
+        return blog.user?.id === userId;
+    }
 }
