@@ -8,7 +8,7 @@ export class CreateBlogDto {
     description: string;
 
     @IsOptional()
-    image: any;
+    image: string;
 
     @IsNotEmpty()
     @IsArray()
