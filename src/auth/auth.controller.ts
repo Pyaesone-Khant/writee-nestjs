@@ -51,4 +51,9 @@ export class AuthController {
         const decoded = await this.jwtService.verifyAsync(token, { secret: process.env.JWT_SECRET, ignoreExpiration: isRefreshToken })
         return this.authService.refreshToken(decoded)
     }
+
+    @Post("forgot-password")
+    async forgotPassword(@Body() body: { email: string }) {
+        return this.authService.forgotPassword(body.email)
+    }
 }

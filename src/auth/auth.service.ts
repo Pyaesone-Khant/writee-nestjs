@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import * as crypto from "crypto";
 import { EmailService } from 'src/email/email.service';
+import { generateOtp } from 'src/helpers/generateOtp';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
@@ -38,8 +38,7 @@ export class AuthService {
         const user: User = await this.usersService.findByEmail(email);
         if (user && user?.is_verified) throw new BadRequestException("Email already exists!");
 
-        const { otp, otp_expiration } = this.generateOtp();
-
+        const { otp, otp_expiration } = generateOtp();
 
         // If user exists but not verified
         if (user && !user?.is_verified) {
@@ -85,14 +84,6 @@ export class AuthService {
         return bcrypt.hashSync(password, 10);
     }
 
-    generateOtp() {
-        const numberArr = new Uint32Array(10);
-        const randomArrIndex = Math.floor(Math.random() * numberArr.length);
-        const otp = crypto.getRandomValues(numberArr)[randomArrIndex].toString().slice(0, 6);
-        const otp_expiration = (Date.now() + (3 * 60 * 1000)).toString();
-        return { otp, otp_expiration }
-    }
-
     isVerified(user: User) {
         if (user.is_verified) throw new BadRequestException("Email already verified!");
     }
@@ -106,7 +97,7 @@ export class AuthService {
             const user = await this.usersService.findByEmail(requestOtpDto.email);
             if (!user) throw new NotFoundException("Email not found!");
 
-            const { otp, otp_expiration } = this.generateOtp();
+            const { otp, otp_expiration } = generateOtp()
             await this.usersService.update(user.id, { otp, otp_expiration, is_verified: false, email: newEmail });
 
             const sendMailDto = {
@@ -124,7 +115,7 @@ export class AuthService {
 
             this.isVerified(user);
 
-            const { otp, otp_expiration } = this.generateOtp();
+            const { otp, otp_expiration } = generateOtp();
             await this.usersService.update(user.id, { otp, otp_expiration, is_verified: false });
 
             const sendMailDto = {
@@ -151,7 +142,7 @@ export class AuthService {
     }
 
     async resentOtp(email: string) {
-        const { otp, otp_expiration } = this.generateOtp();
+        const { otp, otp_expiration } = generateOtp();
         const user = await this.usersService.findByEmail(email);
         if (!user) throw new NotFoundException("Email not found!");
         this.isVerified(user);
@@ -165,6 +156,23 @@ export class AuthService {
         await this.emailService.sendEmail(sendMailDto);
 
         return { message: "OTP resent successfully!" };
+    }
+
+    async forgotPassword(email: string) {
+        const user = await this.usersService.findByEmail(email);
+        if (!user) throw new NotFoundException("Email not found!");
+
+        const { otp, otp_expiration } = generateOtp();
+        await this.usersService.update(user.id, { otp, otp_expiration, is_verified: false });
+
+        const sendMailDto = {
+            user: { email: email, name: user.name },
+            subject: "Forgot Password",
+            otp,
+        }
+        await this.emailService.sendEmail(sendMailDto);
+
+        return { message: "OTP sent successfully!" };
     }
 
 }
