@@ -23,9 +23,7 @@ export class UsersService {
 
     async findOne(id: number) {
         //const user = await this.userRepository.createQueryBuilder("user").leftJoinAndSelect("user.blogs", "blogs").leftJoinAndSelect("blogs.categories", "categories").where("user.id = :id", { id }).getOne();
-
         const user = await this.userRepository.findOne({ where: { id }, select: ["id", "image", "name", "email", "is_verified"] });
-
         if (!user) throw new NotFoundException("User not found!");
         return user;
     }
@@ -42,5 +40,10 @@ export class UsersService {
 
     async findByEmail(email: string) {
         return await this.userRepository.findOne({ where: { email } });
+    }
+
+    async uploadProfileImage(id: number, image: string) {
+        await this.userRepository.update(id, { image });
+        return { message: "Profile image uploaded successfully!" }
     }
 }

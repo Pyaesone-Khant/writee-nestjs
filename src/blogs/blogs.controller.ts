@@ -30,8 +30,8 @@ export class BlogsController {
         createBlogDto.category_ids = categories;
         if (!title || !description || !category_ids) throw new BadRequestException("Please provide all the required fields!");
         if (file) {
-            const result = await this.awsService.uploadFile(file);
-            createBlogDto.image = result?.Location;
+            const image = await this.awsService.uploadFile(file);
+            createBlogDto.image = image;
         }
         return await this.blogsService.create(createBlogDto, user_id);
     }
@@ -50,7 +50,17 @@ export class BlogsController {
 
     @UseGuards(BlogGuard)
     @Patch(':id')
-    update(@Req() request: any, @Param('id') id: string, @Body() updateBlogDto: UpdateBlogDto) {
+    @UseInterceptors(FileInterceptor("file", {
+        fileFilter: fileFilter,
+        limits: {
+            fileSize: MAX_FILE_SIZE
+        }
+    }))
+    async update(@Req() request: any, @Param('id') id: string, @Body() updateBlogDto: UpdateBlogDto, @UploadedFile() file?: Express.Multer.File) {
+        if (file) {
+            const image = await this.awsService.uploadFile(file);
+            updateBlogDto.image = image;
+        }
         return this.blogsService.update(+id, updateBlogDto);
     }
 
@@ -58,21 +68,5 @@ export class BlogsController {
     @Delete(':id')
     remove(@Req() request: any, @Param('id') id: string) {
         return this.blogsService.remove(+id);
-    }
-
-    @Post("upload")
-    @UseInterceptors(FileInterceptor("file", {
-        fileFilter: fileFilter,
-        limits: {
-            fileSize: MAX_FILE_SIZE
-        }
-    }))
-    uploadFile(
-        @Body() body: any,
-        @UploadedFile() file?: Express.Multer.File) {
-        const { title, description, category_ids } = body;
-        if (!title || !description || !category_ids) throw new BadRequestException("Please provide all the required fields!");
-        const result = this.awsService.uploadFile(file);
-        return result;
     }
 }
