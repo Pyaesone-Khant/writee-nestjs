@@ -21,9 +21,9 @@ export class UsersService {
         return await this.userRepository.find({ select: ["id", "image", "name", "email", "is_verified"] });
     }
 
-    async findOne(id: number) {
-        //const user = await this.userRepository.createQueryBuilder("user").leftJoinAndSelect("user.blogs", "blogs").leftJoinAndSelect("blogs.categories", "categories").where("user.id = :id", { id }).getOne();
-        const user = await this.userRepository.findOne({ where: { id }, select: ["id", "image", "name", "email", "is_verified", "password"] });
+    async findOne(id: number, select: string[] = []) {
+        // const user = !select?.length ? await this.userRepository.createQueryBuilder("user").leftJoinAndSelect("user.blogs", "blogs").leftJoinAndSelect("blogs.categories", "categories").where("user.id = :id", { id }).getOne() : await this.userRepository.createQueryBuilder("user").leftJoinAndSelect("user.blogs", "blogs").leftJoinAndSelect("blogs.categories", "categories").where("user.id = :id", { id }).select([...select]).getOne();
+        const user = await this.userRepository.findOne({ where: { id }, select: ["id", "image", "name", "email"] });
         if (!user) throw new NotFoundException("User not found!");
         return user;
     }

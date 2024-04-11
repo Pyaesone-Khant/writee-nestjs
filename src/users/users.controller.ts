@@ -3,6 +3,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import * as bcrypt from 'bcrypt';
 import { AwsService } from 'src/aws/aws.service';
 import { BlogsService } from 'src/blogs/blogs.service';
+import { Public } from 'src/decorators/public.decorator';
 import { EmailService } from 'src/email/email.service';
 import { fileFilter } from 'src/helpers/fileFilter';
 import { generateOtp } from 'src/helpers/generateOtp';
@@ -24,11 +25,19 @@ export class UsersController {
         return this.usersService.findAll();
     }
 
+    @Get('currentUser')
+    async currentUser(@Req() request: any) {
+        const userId = request?.user?.id;
+        return this.usersService.findOne(+userId, ["user.id", "user.name", "user.email", "user.image"]);
+    }
+
+    @Public()
     @Get(':id/blogs')
     findBlogs(@Param('id') id: string) {
         return this.blogsService.findByUser(+id);
     }
 
+    @Public()
     @Get(':id')
     findOne(@Param('id') id: string) {
         return this.usersService.findOne(+id);
