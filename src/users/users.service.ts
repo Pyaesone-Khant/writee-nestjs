@@ -47,4 +47,9 @@ export class UsersService {
         await this.userRepository.update(id, { image });
         return { message: "Profile image uploaded successfully!" }
     }
+
+    async removeProfileImage(id: number) {
+        await this.userRepository.update(id, { image: null });
+        return { message: "Profile image removed successfully!" }
+    }
 }

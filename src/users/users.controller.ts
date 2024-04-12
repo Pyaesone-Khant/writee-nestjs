@@ -129,12 +129,24 @@ export class UsersController {
         return { message: "Password reset successfully!" }
     }
 
+    @Delete("removeImage")
+    async removeProfileImage(@Req() request: any) {
+        const userId = request?.user?.id;
+        const user = await this.usersService.findOne(+userId);
+        if (!user.image) {
+            throw new BadRequestException("User don't have profile image!");
+        }
+        const key = user.image.split("/").slice(-1)[0];
+        await this.awsService.deleteFile(key);
+        return this.usersService.removeProfileImage(+userId);
+    }
+
     @Delete(':id')
     remove(@Param('id') id: string) {
         return this.usersService.remove(+id);
     }
 
-    @Post("upload")
+    @Post("uploadImage")
     @UseInterceptors(FileInterceptor("file", {
         fileFilter: fileFilter,
         limits: {
@@ -146,6 +158,8 @@ export class UsersController {
         if (!file) {
             throw new BadRequestException("Please upload a file");
         }
+        const fileName = Date.now() + "_" + file.originalname;
+        file.originalname = fileName;
         const image = await this.awsService.uploadFile(file);;
         return this.usersService.uploadProfileImage(+userId, image);
     }

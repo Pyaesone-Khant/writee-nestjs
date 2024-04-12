@@ -31,7 +31,7 @@ export class BlogsService {
     }
 
     async findAll() {
-        return await this.blogRepository.createQueryBuilder("blog").leftJoinAndSelect("blog.categories", "categories").leftJoinAndSelect("blog.user", "user").select(["blog.id", "blog.title", "blog.description", "blog.image", "categories", "user.id", "user.name", "user.email", "user.image"]).getMany();
+        return await this.blogRepository.createQueryBuilder("blog").leftJoinAndSelect("blog.categories", "categories").leftJoinAndSelect("blog.user", "user").select(["blog.id", "blog.title", "blog.description", "blog.image", "categories", "user.id", "user.name", "user.email", "user.image"]).orderBy("blog.id", "DESC").getMany();
     }
 
     async findOne(id: number) {
@@ -64,7 +64,7 @@ export class BlogsService {
 
         const user = await this.userRepository.findOne({ where: { id: user_id } });
         if (!user) throw new NotFoundException("User not found!")
-        const blogs = await this.blogRepository.createQueryBuilder('blog').leftJoinAndSelect('blog.categories', 'categories').leftJoinAndSelect('blog.user', 'user').where('user.id = :user_id', { user_id }).select(['blog.id', 'blog.title', 'blog.description', 'blog.image', 'categories']).getMany();
+        const blogs = await this.blogRepository.createQueryBuilder('blog').leftJoinAndSelect('blog.categories', 'categories').leftJoinAndSelect('blog.user', 'user').where('user.id = :user_id', { user_id }).select(['blog.id', 'blog.title', 'blog.description', 'blog.image', 'categories', "user.name", "user.id", "user.email", "user.image"]).orderBy("blog.id", "DESC").getMany();
         return blogs;
     }
 
@@ -73,7 +73,7 @@ export class BlogsService {
         const category = await this.categoryRepository.findOne({ where: { id: category_id } })
         if (!category) throw new NotFoundException("Category not found!")
 
-        const blogs = await this.blogRepository.createQueryBuilder('blog').leftJoinAndSelect('blog.categories', 'categories').leftJoinAndSelect('blog.user', 'user').where('categories.id = :category_id', { category_id }).select(['blog.id', 'blog.title', 'blog.description', 'blog.image', 'categories', 'user.id', 'user.name', 'user.email', 'user.image']).getMany();
+        const blogs = await this.blogRepository.createQueryBuilder('blog').leftJoinAndSelect('blog.categories', 'categories').leftJoinAndSelect('blog.user', 'user').where('categories.id = :category_id', { category_id }).select(['blog.id', 'blog.title', 'blog.description', 'blog.image', 'categories', 'user.id', 'user.name', 'user.email', 'user.image']).orderBy("blog.id", "DESC").getMany();
 
         // get all categories related to each blog
         for (const blog of blogs) {
@@ -92,7 +92,7 @@ export class BlogsService {
         return ids.length === categories.length;
     }
 
-    async isUserAuthorized(userId: number, blogId: number) { 
+    async isUserAuthorized(userId: number, blogId: number) {
         const blog = await this.findOne(blogId)
         return blog.user?.id === userId;
     }
