@@ -18,12 +18,12 @@ export class UsersService {
     }
 
     async findAll() {
-        return await this.userRepository.find({ select: ["id", "image", "name", "email", "is_verified"], relations: ["roles"] });
+        return await this.userRepository.find({ select: ["id", "image", "name", "email", "is_verified", "roles"], relations: ["roles"] });
     }
 
     async findOne(id: number, select: string[] = []) {
         // const user = !select?.length ? await this.userRepository.createQueryBuilder("user").leftJoinAndSelect("user.blogs", "blogs").leftJoinAndSelect("blogs.categories", "categories").where("user.id = :id", { id }).getOne() : await this.userRepository.createQueryBuilder("user").leftJoinAndSelect("user.blogs", "blogs").leftJoinAndSelect("blogs.categories", "categories").where("user.id = :id", { id }).select([...select]).getOne();
-        const user = await this.userRepository.findOne({ where: { id }, select: ["id", "image", "name", "email"] });
+        const user = await this.userRepository.findOne({ where: { id }, select: ["id", "image", "name", "email", "roles"], relations: ["roles"] });
         if (!user) throw new NotFoundException("User not found!");
         return user;
     }
@@ -40,7 +40,7 @@ export class UsersService {
     }
 
     async findByEmail(email: string) {
-        return await this.userRepository.findOne({ where: { email } });
+        return await this.userRepository.findOne({ where: { email }, relations: ["roles"] });
     }
 
     async uploadProfileImage(id: number, image: string) {

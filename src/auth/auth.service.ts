@@ -76,7 +76,8 @@ export class AuthService {
 
     async generateAccessToken(user: User) {
         const expiredAt = Date.now() + (24 * 60 * 60 * 1000);
-        const payload = { email: user.email, id: user.id }
+        const roles = user.roles?.map((role: { id: number, name: string }) => role.name);
+        const payload = { email: user.email, id: user.id, roles }
         return { accessToken: this.jwtService.sign(payload), expiredAt }
     }
 

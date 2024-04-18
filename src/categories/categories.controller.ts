@@ -1,10 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { BlogsService } from 'src/blogs/blogs.service';
 import { Public } from 'src/decorators/public.decorator';
+import { Roles } from 'src/decorators/roles.decorator';
+import { RolesGuard } from 'src/guards/auth/roles.guard';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
+@UseGuards(RolesGuard)
 @Controller('categories')
 export class CategoriesController {
     constructor(
@@ -12,6 +15,7 @@ export class CategoriesController {
         private readonly blogsService: BlogsService
     ) { }
 
+    @Roles("ADMIN")
     @Post()
     create(@Body() createCategoryDto: CreateCategoryDto) {
         return this.categoriesService.create(createCategoryDto);
@@ -35,11 +39,13 @@ export class CategoriesController {
         return this.categoriesService.findOne(+id);
     }
 
+    @Roles("ADMIN")
     @Patch(':id')
     update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
         return this.categoriesService.update(+id, updateCategoryDto);
     }
 
+    @Roles("ADMIN")
     @Delete(':id')
     remove(@Param('id') id: string) {
         return this.categoriesService.remove(+id);
