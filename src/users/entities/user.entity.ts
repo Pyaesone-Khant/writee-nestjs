@@ -1,6 +1,7 @@
 import { IsEmail, IsStrongPassword } from "class-validator";
 import { Blog } from "src/blogs/entities/blog.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Role } from "src/roles/entities/role.entity";
+import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: "users" })
 export class User {
@@ -29,6 +30,20 @@ export class User {
 
     @Column({ default: null })
     otp_expiration: string;
+
+    @ManyToMany(() => Role, role => role.id)
+    @JoinTable({
+        name: "user_role_id",
+        joinColumn: {
+            name: "user_id",
+            referencedColumnName: "id"
+        },
+        inverseJoinColumn: {
+            name: "role_id",
+            referencedColumnName: "id"
+        }
+    })
+    roles: Role[]
 
     @OneToMany(() => Blog, blog => blog.user)
     blogs: Blog[];

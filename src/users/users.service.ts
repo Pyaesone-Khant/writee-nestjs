@@ -18,7 +18,7 @@ export class UsersService {
     }
 
     async findAll() {
-        return await this.userRepository.find({ select: ["id", "image", "name", "email", "is_verified"] });
+        return await this.userRepository.find({ select: ["id", "image", "name", "email", "is_verified"], relations: ["roles"] });
     }
 
     async findOne(id: number, select: string[] = []) {

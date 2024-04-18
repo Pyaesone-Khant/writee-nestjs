@@ -26,6 +26,7 @@ import { UsersService } from './users/users.service';
 import { CommentModule } from './comment/comment.module';
 import { AwsModule } from './aws/aws.module';
 import { SearchModule } from './search/search.module';
+import { RolesModule } from './roles/roles.module';
 
 @Module({
     imports: [
@@ -57,6 +58,7 @@ import { SearchModule } from './search/search.module';
         CommentModule,
         AwsModule,
         SearchModule,
+        RolesModule,
     ],
     controllers: [
         AppController,
