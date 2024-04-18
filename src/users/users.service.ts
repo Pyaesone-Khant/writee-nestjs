@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { RolesService } from 'src/roles/roles.service';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -9,11 +10,14 @@ import { User } from './entities/user.entity';
 export class UsersService {
 
     constructor(
-        @InjectRepository(User) private readonly userRepository: Repository<User>
+        @InjectRepository(User) private readonly userRepository: Repository<User>,
+        private readonly rolesService: RolesService
     ) { }
 
     async create(createUserDto: CreateUserDto) {
-        const user = this.userRepository.create(createUserDto);
+        const defaultRole = await this.rolesService.findByRoleName("USER");
+        if (!defaultRole) throw new NotFoundException("Default role not found!")
+        const user = this.userRepository.create({ ...createUserDto, roles: [defaultRole] });
         return await this.userRepository.save(user);
     }
 

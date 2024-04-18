@@ -1,6 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Roles } from 'src/decorators/roles.decorator';
+import { RolesGuard } from 'src/guards/auth/roles.guard';
 import { RolesService } from './roles.service';
 
+@Roles("ADMIN")
+@UseGuards(RolesGuard)
 @Controller('roles')
 export class RolesController {
   constructor(

@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import * as bcrypt from 'bcrypt';
 import { AwsService } from 'src/aws/aws.service';
@@ -8,9 +8,12 @@ import { EmailService } from 'src/email/email.service';
 import { fileFilter } from 'src/helpers/fileFilter';
 import { generateOtp } from 'src/helpers/generateOtp';
 import { UsersService } from './users.service';
+import { RolesGuard } from 'src/guards/auth/roles.guard';
+import { Roles } from 'src/decorators/roles.decorator';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; //2mb
 
+@UseGuards(RolesGuard)
 @Controller('users')
 export class UsersController {
     constructor(
@@ -20,6 +23,7 @@ export class UsersController {
         private readonly emailService: EmailService,
     ) { }
 
+    @Roles("ADMIN")
     @Get()
     findAll() {
         return this.usersService.findAll();
