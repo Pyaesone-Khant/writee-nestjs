@@ -1,6 +1,7 @@
 import { Category } from "src/categories/entities/category.entity";
+import { Comment } from "src/comment/entities/comment.entity";
 import { User } from "src/users/entities/user.entity";
-import { Column, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: "blogs" })
 export class Blog {
@@ -10,15 +11,34 @@ export class Blog {
     @Column({ nullable: false, unique: true })
     title: string;
 
-    @Column({ nullable: false })
+    @Column("longtext", { nullable: false })
     description: string;
 
-    @Column()
+    @Column({ default: null })
     image: string;
 
     @ManyToMany(() => Category, category => category.id)
+    @JoinTable({
+        name: "blog_category_id",
+        joinColumn: {
+            name: "blog_id",
+            referencedColumnName: "id"
+        },
+        inverseJoinColumn: {
+            name: "category_id",
+            referencedColumnName: "id"
+        }
+    })
     categories: Category[];
 
     @ManyToOne(() => User, user => user.id)
-    user: User
+    user: {
+        id: number;
+        name: string;
+        email: string;
+        image: string;
+    }
+
+    @OneToMany(() => Comment, cmt => cmt.id)
+    comments: Comment[]
 } 

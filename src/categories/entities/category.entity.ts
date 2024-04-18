@@ -1,5 +1,5 @@
 import { Blog } from "src/blogs/entities/blog.entity";
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: "categories" })
 export class Category {
@@ -10,5 +10,16 @@ export class Category {
     title: string;
 
     @ManyToMany(() => Blog, blog => blog.id)
+    @JoinTable({
+        name: "blog_category_id",
+        joinColumn: {
+            name: "category_id",
+            referencedColumnName: "id"
+        },
+        inverseJoinColumn: {
+            name: "blog_id",
+            referencedColumnName: "id"
+        }
+    })
     blogs: Blog[];
 }

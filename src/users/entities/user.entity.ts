@@ -1,6 +1,7 @@
-import { IsEmail } from "class-validator";
+import { IsEmail, IsStrongPassword } from "class-validator";
 import { Blog } from "src/blogs/entities/blog.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Role } from "src/roles/entities/role.entity";
+import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: "users" })
 export class User {
@@ -10,25 +11,40 @@ export class User {
     @Column({ nullable: false, })
     name: string;
 
-    @IsEmail({})
+    @IsEmail()
     @Column({ nullable: false, unique: true })
     email: string;
 
+    @IsStrongPassword()
     @Column({ nullable: false })
     password: string;
 
-    @Column()
+    @Column({ default: null })
     image: string;
 
     @Column({ default: false, nullable: false })
     is_verified: boolean;
 
-    @Column()
+    @Column({ default: null })
     otp: string;
 
-    @Column()
+    @Column({ default: null })
     otp_expiration: string;
 
-    @OneToMany(() => Blog, blog => blog.id)
+    @ManyToMany(() => Role, role => role.id)
+    @JoinTable({
+        name: "user_role_id",
+        joinColumn: {
+            name: "user_id",
+            referencedColumnName: "id"
+        },
+        inverseJoinColumn: {
+            name: "role_id",
+            referencedColumnName: "id"
+        }
+    })
+    roles: Role[]
+
+    @OneToMany(() => Blog, blog => blog.user)
     blogs: Blog[];
 }
