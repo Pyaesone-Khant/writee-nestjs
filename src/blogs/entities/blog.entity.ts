@@ -31,13 +31,8 @@ export class Blog {
     })
     categories: Category[];
 
-    @ManyToOne(() => User, user => user.id)
-    user: {
-        id: number;
-        name: string;
-        email: string;
-        image: string;
-    }
+    @ManyToOne(() => User, user => user.blogs)
+    user: User;
 
     @OneToMany(() => Comment, cmt => cmt.id)
     comments: Comment[]

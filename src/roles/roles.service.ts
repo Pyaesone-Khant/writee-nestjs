@@ -5,41 +5,53 @@ import { Role } from './entities/role.entity';
 
 @Injectable()
 export class RolesService {
-  constructor(
-    @InjectRepository(Role) private readonly roleRepository: Repository<Role>
-  ) { }
+    constructor(
+        @InjectRepository(Role) private readonly roleRepository: Repository<Role>
+    ) { }
 
-  async findAll(): Promise<Role[]> {
-    return await this.roleRepository.find();
-  }
+    async onModuleInit() {
+        const rolesCount = await this.roleRepository.count();
 
-  async findOne(id: number): Promise<Role> {
-    return await this.roleRepository.findOne({ where: { id } });
-  }
+        if (rolesCount === 0) {
+            const roles = [
+                { name: "ADMIN" },
+                { name: "USER" }
+            ];
+            await this.roleRepository.save(roles);
+        }
+    }
 
-  async create(role: { name: string }): Promise<Role> {
-    const isRoleExist = await this.findByRoleName(role.name);
-    if (isRoleExist) throw new BadRequestException("Role already exists!")
+    async findAll(): Promise<Role[]> {
+        return await this.roleRepository.find();
+    }
 
-    return await this.roleRepository.save(role);
-  }
+    async findOne(id: number): Promise<Role> {
+        return await this.roleRepository.findOne({ where: { id } });
+    }
 
-  async update(id: number, role: { name: string }): Promise<Role> {
-    const isRoleExist = await this.findByRoleName(role.name);
-    if (isRoleExist) throw new BadRequestException("Role already exists!")
+    async create(role: { name: string }): Promise<Role> {
+        const isRoleExist = await this.findByRoleName(role.name);
+        if (isRoleExist) throw new BadRequestException("Role already exists!")
 
-    await this.roleRepository.update(id, role);
-    return await this.roleRepository.findOne({ where: { id } });
-  }
+        return await this.roleRepository.save(role);
+    }
 
-  async delete(id: number): Promise<Role> {
-    const role = await this.roleRepository.findOne({ where: { id } });
-    await this.roleRepository.delete(id);
-    return role;
-  }
+    async update(id: number, role: { name: string }): Promise<Role> {
+        const isRoleExist = await this.findByRoleName(role.name);
+        if (isRoleExist) throw new BadRequestException("Role already exists!")
 
-  async findByRoleName(name: string): Promise<Role> {
-    return await this.roleRepository.findOne({ where: { name } });
-  }
+        await this.roleRepository.update(id, role);
+        return await this.roleRepository.findOne({ where: { id } });
+    }
+
+    async delete(id: number): Promise<Role> {
+        const role = await this.roleRepository.findOne({ where: { id } });
+        await this.roleRepository.delete(id);
+        return role;
+    }
+
+    async findByRoleName(name: string): Promise<Role> {
+        return await this.roleRepository.findOne({ where: { name } });
+    }
 
 }
