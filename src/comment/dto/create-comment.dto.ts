@@ -7,9 +7,9 @@ export class CreateCommentDto {
   comment: string;
 
   @IsOptional()
-  userId: number;
+  user_id: number;
 
   @IsNotEmpty()
   @IsNumber()
-  blogId: number;
+  blog_id: number;
 }

@@ -26,8 +26,8 @@ export class UsersService {
     }
 
     async findOne(id: number, select: string[] = []) {
-        // const user = !select?.length ? await this.userRepository.createQueryBuilder("user").leftJoinAndSelect("user.blogs", "blogs").leftJoinAndSelect("blogs.categories", "categories").where("user.id = :id", { id }).getOne() : await this.userRepository.createQueryBuilder("user").leftJoinAndSelect("user.blogs", "blogs").leftJoinAndSelect("blogs.categories", "categories").where("user.id = :id", { id }).select([...select]).getOne();
-        const user = await this.userRepository.findOne({ where: { id }, select: ["id", "image", "name", "email", "roles"], relations: ["roles"] });
+        const user = await this.userRepository.createQueryBuilder("user").leftJoinAndSelect("user.roles", "roles").where("user.id = :id", { id }).select(["user.id", "user.image", "user.name", "user.email", "roles", ...select]).getOne();
+
         if (!user) throw new NotFoundException("User not found!");
         return user;
     }

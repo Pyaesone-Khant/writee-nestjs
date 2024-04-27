@@ -1,5 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import * as AWS from "aws-sdk";
+import { extractImageKey } from 'src/helpers/extractImageKey';
 
 @Injectable()
 export class AwsService {
@@ -12,7 +13,7 @@ export class AwsService {
     async uploadFile(file?: Express.Multer.File) {
         const uploadParams = {
             Bucket: process.env.AWS_S3_BUCKET_NAME,
-            Key: String(file.originalname),
+            Key: Date.now() + "_" + String(file.originalname),
             Body: file.buffer,
             ContentType: file.mimetype,
             ACL: 'public-read',
@@ -31,7 +32,8 @@ export class AwsService {
         }
     }
 
-    async deleteFile(key: string) {
+    async deleteFile(image: string) {
+        const key = extractImageKey(image)
         const deleteParams = {
             Bucket: process.env.AWS_S3_BUCKET_NAME,
             Key: key

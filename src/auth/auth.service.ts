@@ -62,7 +62,7 @@ export class AuthService {
             otp,
         }
         await this.emailService.sendEmail(sendMailDto)
-        return { message: "OTP Code has been sent your email address!" }
+        return { message: "OTP Code has been sent your email address!", user: { name: newUser.name, email: newUser.email } }
     }
 
     async refreshToken(user: any) {

@@ -4,12 +4,12 @@ import * as bcrypt from 'bcrypt';
 import { AwsService } from 'src/aws/aws.service';
 import { BlogsService } from 'src/blogs/blogs.service';
 import { Public } from 'src/decorators/public.decorator';
+import { Roles } from 'src/decorators/roles.decorator';
 import { EmailService } from 'src/email/email.service';
+import { RolesGuard } from 'src/guards/auth/roles.guard';
 import { fileFilter } from 'src/helpers/fileFilter';
 import { generateOtp } from 'src/helpers/generateOtp';
 import { UsersService } from './users.service';
-import { RolesGuard } from 'src/guards/auth/roles.guard';
-import { Roles } from 'src/decorators/roles.decorator';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; //2mb
 
@@ -62,7 +62,7 @@ export class UsersController {
             throw new BadRequestException("Please provide current password and new password!");
         }
 
-        const user = await this.usersService.findOne(+userId);
+        const user = await this.usersService.findOne(+userId, ["user.password"]);
         if (!user) {
             throw new BadRequestException("User not found");
         }
@@ -140,8 +140,7 @@ export class UsersController {
         if (!user.image) {
             throw new BadRequestException("User don't have profile image!");
         }
-        const key = user.image.split("/").slice(-1)[0];
-        await this.awsService.deleteFile(key);
+        await this.awsService.deleteFile(user.image);
         return this.usersService.removeProfileImage(+userId);
     }
 
@@ -162,9 +161,12 @@ export class UsersController {
         if (!file) {
             throw new BadRequestException("Please upload a file");
         }
-        const fileName = Date.now() + "_" + file.originalname;
-        file.originalname = fileName;
-        const image = await this.awsService.uploadFile(file);;
+
+        const user = await this.usersService.findOne(+userId);
+        if (user.image) {
+            await this.awsService.deleteFile(user.image);
+        }
+        const image = await this.awsService.uploadFile(file);
         return this.usersService.uploadProfileImage(+userId, image);
     }
 }

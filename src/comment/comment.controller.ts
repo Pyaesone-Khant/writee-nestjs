@@ -11,7 +11,7 @@ export class CommentController {
 
   @Post()
   create(@Req() request: any, @Body() createCommentDto: CreateCommentDto) {
-    createCommentDto.userId = request.user?.id;
+    createCommentDto.user_id = request.user?.id;
     return this.commentService.create(createCommentDto);
   }
 
@@ -19,12 +19,6 @@ export class CommentController {
   @Get()
   findAll() {
     return this.commentService.findAll();
-  }
-
-  @Public()
-  @Get("blog/:blogId")
-  findCommentsByBlogId(@Param("blogId") blogId: string) {
-    return this.commentService.findCommentsByBlogId(+blogId)
   }
 
   @Public()

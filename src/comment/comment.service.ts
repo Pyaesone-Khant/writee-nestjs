@@ -17,10 +17,10 @@ export class CommentService {
 
   async create(createCommentDto: CreateCommentDto) {
 
-    const user = await this.usersRepository.findOne({ where: { id: createCommentDto.userId } });
+    const user = await this.usersRepository.findOne({ where: { id: createCommentDto.user_id } });
     if (!user) throw new NotFoundException("User not found!");
 
-    const blog = await this.blogsRepository.findOne({ where: { id: createCommentDto.blogId } });
+    const blog = await this.blogsRepository.findOne({ where: { id: createCommentDto.blog_id } });
     if (!blog) throw new NotFoundException("Blog not found!");
 
     const comment = this.commentRepository.create({ ...createCommentDto, user, blog });

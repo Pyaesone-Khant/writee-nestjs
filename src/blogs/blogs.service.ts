@@ -47,8 +47,22 @@ export class BlogsService {
     }
 
     async update(id: number, updateBlogDto: UpdateBlogDto) {
-        await this.findOne(id);
-        return await this.blogRepository.update(id, updateBlogDto);
+
+        const { title, category_ids, } = updateBlogDto;
+        const blog = await this.findOne(id);
+        const isDuplicate = await this.findByTitle(title)
+        if (isDuplicate?.id !== id) throw new BadRequestException("Blog title already exists!");
+
+        const areIdsValid = await this.areIdsValid(category_ids)
+        if (!areIdsValid) throw new BadRequestException("Some category ids do not exist!")
+        const categories = await this.categoryRepository.find({ where: { id: In(category_ids) } })
+        delete updateBlogDto.category_ids;
+
+        blog.categories = categories;
+        await this.blogRepository.save(blog);
+        await this.blogRepository.update(id, updateBlogDto);
+
+        return { message: "Blog updated successfully!" };
     }
 
     async remove(id: number) {
