@@ -1,6 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from 'src/categories/entities/category.entity';
+import { generateSlug } from 'src/helpers/generateSlug';
 import { User } from 'src/users/entities/user.entity';
 import { In, Repository } from 'typeorm';
 import { CreateBlogDto } from './dto/create-blog.dto';
@@ -26,12 +27,14 @@ export class BlogsService {
         if (!areIdsValid) throw new BadRequestException("Some category ids do not exist!")
         const categories = await this.categoryRepository.find({ where: { id: In(createBlogDto.category_ids) } })
 
-        const blog = this.blogRepository.create({ ...createBlogDto, user, categories });
+        const slug = generateSlug(createBlogDto.title);
+
+        const blog = this.blogRepository.create({ ...createBlogDto, user, categories, slug });
         return await this.blogRepository.save(blog)
     }
 
     async findAll() {
-        return await this.blogRepository.createQueryBuilder("blog").leftJoinAndSelect("blog.categories", "categories").leftJoinAndSelect("blog.user", "user").select(["blog.id", "blog.title", "blog.description", "blog.image", "categories", "user.id", "user.name", "user.email", "user.image"]).orderBy("blog.id", "DESC").getMany();
+        return await this.blogRepository.createQueryBuilder("blog").leftJoinAndSelect("blog.categories", "categories").leftJoinAndSelect("blog.user", "user").select(["blog.id", "blog.title", "blog.description", "blog.image", "blog.slug", "categories", "user.id", "user.name", "user.email", "user.image"]).orderBy("blog.id", "DESC").getMany();
     }
 
     async findOne(id: number) {
@@ -59,6 +62,7 @@ export class BlogsService {
         delete updateBlogDto.category_ids;
 
         blog.categories = categories;
+        blog.slug = generateSlug(title);
         await this.blogRepository.save(blog);
         await this.blogRepository.update(id, updateBlogDto);
 
@@ -72,6 +76,21 @@ export class BlogsService {
 
     async findByTitle(title: string) {
         return await this.blogRepository.findOne({ where: { title } });
+    }
+
+    async findBySlug(slug: string): Promise<Blog> {
+
+        console.log(slug)
+
+        const blog = await this.blogRepository.createQueryBuilder('blog')
+            .leftJoinAndSelect('blog.categories', 'categories')
+            .leftJoinAndSelect('blog.user', 'user')
+            .select(['blog.id', 'blog.title', 'blog.description', 'blog.image', 'categories', 'user.id', 'user.name', 'user.email', 'user.image'])
+            .where('blog.slug = :slug', { slug })
+            .getOne();
+
+        if (!blog) throw new NotFoundException("Blog not found!");
+        return blog;
     }
 
     async findByUser(user_id: number) {

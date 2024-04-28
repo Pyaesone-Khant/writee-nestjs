@@ -45,6 +45,12 @@ export class BlogsController {
     }
 
     @Public()
+    @Get("slug/:slug")
+    findBySlug(@Param("slug") slug: string) {
+        return this.blogsService.findBySlug(slug)
+    }
+
+    @Public()
     @Get(':id')
     findOne(@Param('id') id: string) {
         return this.blogsService.findOne(+id);

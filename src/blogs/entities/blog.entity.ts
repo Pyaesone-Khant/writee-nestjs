@@ -11,6 +11,9 @@ export class Blog {
     @Column({ nullable: false, unique: true })
     title: string;
 
+    @Column({ nullable: false })
+    slug: string;
+
     @Column("longtext", { nullable: false })
     description: string;
 
