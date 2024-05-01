@@ -79,9 +79,6 @@ export class BlogsService {
     }
 
     async findBySlug(slug: string): Promise<Blog> {
-
-        console.log(slug)
-
         const blog = await this.blogRepository.createQueryBuilder('blog')
             .leftJoinAndSelect('blog.categories', 'categories')
             .leftJoinAndSelect('blog.user', 'user')
@@ -97,7 +94,7 @@ export class BlogsService {
 
         const user = await this.userRepository.findOne({ where: { id: user_id } });
         if (!user) throw new NotFoundException("User not found!")
-        const blogs = await this.blogRepository.createQueryBuilder('blog').leftJoinAndSelect('blog.categories', 'categories').leftJoinAndSelect('blog.user', 'user').where('user.id = :user_id', { user_id }).select(['blog.id', 'blog.title', 'blog.description', 'blog.image', 'categories', "user.name", "user.id", "user.email", "user.image"]).orderBy("blog.id", "DESC").getMany();
+        const blogs = await this.blogRepository.createQueryBuilder('blog').leftJoinAndSelect('blog.categories', 'categories').leftJoinAndSelect('blog.user', 'user').where('user.id = :user_id', { user_id }).select(['blog.id', 'blog.title', 'blog.description', 'blog.image', 'blog.slug', 'categories', "user.name", "user.id", "user.email", "user.image"]).orderBy("blog.id", "DESC").getMany();
         return blogs;
     }
 
@@ -106,7 +103,7 @@ export class BlogsService {
         const category = await this.categoryRepository.findOne({ where: { id: category_id } })
         if (!category) throw new NotFoundException("Category not found!")
 
-        const blogs = await this.blogRepository.createQueryBuilder('blog').leftJoinAndSelect('blog.categories', 'categories').leftJoinAndSelect('blog.user', 'user').where('categories.id = :category_id', { category_id }).select(['blog.id', 'blog.title', 'blog.description', 'blog.image', 'categories', 'user.id', 'user.name', 'user.email', 'user.image']).orderBy("blog.id", "DESC").getMany();
+        const blogs = await this.blogRepository.createQueryBuilder('blog').leftJoinAndSelect('blog.categories', 'categories').leftJoinAndSelect('blog.user', 'user').where('categories.id = :category_id', { category_id }).select(['blog.id', 'blog.title', 'blog.description', 'blog.image', 'blog.slug', 'categories', 'user.id', 'user.name', 'user.email', 'user.image']).orderBy("blog.id", "DESC").getMany();
 
         // get all categories related to each blog
         for (const blog of blogs) {

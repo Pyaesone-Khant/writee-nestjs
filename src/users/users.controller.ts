@@ -92,7 +92,7 @@ export class UsersController {
             throw new BadRequestException("Please provide password and new email!");
         }
 
-        const user = await this.usersService.findOne(+userId);
+        const user = await this.usersService.findOne(+userId, ["user.password"]);
         if (!user) {
             throw new BadRequestException("User not found");
         }

@@ -10,9 +10,9 @@ export class Comment {
     @Column("text", { nullable: false })
     comment: string;
 
-    @ManyToOne(() => Blog, blog => blog.id)
+    @ManyToOne(() => Blog, blog => blog.comments)
     blog: Blog
 
-    @ManyToOne(() => User, user => user.id)
+    @ManyToOne(() => User, user => user.comments)
     user: User
 }

@@ -20,7 +20,7 @@ export class Blog {
     @Column({ default: null })
     image: string;
 
-    @ManyToMany(() => Category, category => category.id)
+    @ManyToMany(() => Category, category => category.blogs)
     @JoinTable({
         name: "blog_category_id",
         joinColumn: {
@@ -37,6 +37,6 @@ export class Blog {
     @ManyToOne(() => User, user => user.blogs)
     user: User;
 
-    @OneToMany(() => Comment, cmt => cmt.id)
+    @OneToMany(() => Comment, cmt => cmt.blog)
     comments: Comment[]
 } 

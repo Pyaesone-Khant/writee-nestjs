@@ -1,5 +1,6 @@
-import { IsEmail, IsStrongPassword } from "class-validator";
+import { Exclude } from "class-transformer";
 import { Blog } from "src/blogs/entities/blog.entity";
+import { Comment } from "src/comment/entities/comment.entity";
 import { Role } from "src/roles/entities/role.entity";
 import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
@@ -11,12 +12,11 @@ export class User {
     @Column({ nullable: false, })
     name: string;
 
-    @IsEmail()
     @Column({ nullable: false, unique: true })
     email: string;
 
-    @IsStrongPassword()
     @Column({ nullable: false })
+    @Exclude()
     password: string;
 
     @Column({ default: null })
@@ -47,4 +47,7 @@ export class User {
 
     @OneToMany(() => Blog, blog => blog.user)
     blogs: Blog[];
+
+    @OneToMany(() => Comment, cmt => cmt.user)
+    comments: Comment[]
 }

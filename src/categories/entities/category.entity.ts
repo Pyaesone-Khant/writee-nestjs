@@ -9,7 +9,7 @@ export class Category {
     @Column({ nullable: false, unique: true })
     title: string;
 
-    @ManyToMany(() => Blog, blog => blog.id)
+    @ManyToMany(() => Blog, blog => blog.categories)
     @JoinTable({
         name: "blog_category_id",
         joinColumn: {

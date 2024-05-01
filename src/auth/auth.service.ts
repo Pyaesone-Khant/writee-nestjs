@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { EmailService } from 'src/email/email.service';
@@ -17,6 +17,13 @@ export class AuthService {
         private jwtService: JwtService,
         private emailService: EmailService
     ) { }
+
+    async validateReq(payload: any) {
+        const { id } = payload;
+        const user = await this.usersService.findOne(+id);
+        if (!user) throw new UnauthorizedException("Unauthorized!");
+        return user;
+    }
 
     async validateUser(payload: any) {
         const { email } = payload;
