@@ -1,5 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { BadRequestException, Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 import { Public } from 'src/decorators/public.decorator';
 import { AuthGuard } from 'src/guards/auth/auth.guard';
@@ -12,7 +11,7 @@ import { VerifyOtpDto } from './dto/verify-otp.dto';
 @Public()
 @Controller('auth')
 export class AuthController {
-    constructor(private authService: AuthService, private jwtService: JwtService) { }
+    constructor(private readonly authService: AuthService) { }
 
     @Post("login")
     async login(@Body() loginUserDto: LoginUserDto) {
@@ -43,13 +42,9 @@ export class AuthController {
     @Get("refresh-token")
     async getRefreshToken(@Req() request: Request) {
         const token = request?.headers?.authorization.split(" ")[1];
-        if (!token) throw new UnauthorizedException("Token not found")
-
         const isRefreshToken = request.headers?.isrefreshtoken === "true" ? true : false;
         if (!isRefreshToken) throw new BadRequestException("IsRefreshToken header not found!")
-
-        const decoded = await this.jwtService.verifyAsync(token, { secret: process.env.JWT_SECRET, ignoreExpiration: isRefreshToken })
-        return this.authService.refreshToken(decoded)
+        return this.authService.refreshToken(token)
     }
 
     @Post("forgot-password")

@@ -11,7 +11,7 @@ export class BlogGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const userId = request?.user?.id;
     const blogId = +request.params.id;
-    const isAuthorized = await this.blogsService.isUserAuthorized(userId, blogId);
+    const isAuthorized = await this.blogsService.isAuthor(userId, blogId);
     if (!isAuthorized) throw new UnauthorizedException("You are not authorized to perform this action!");
     return true;
   }

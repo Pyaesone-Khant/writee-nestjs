@@ -1,7 +1,8 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { ClassSerializerInterceptor, Controller, Get, Query, UseInterceptors } from '@nestjs/common';
 import { Public } from 'src/decorators/public.decorator';
 import { SearchService } from './search.service';
 
+@UseInterceptors(ClassSerializerInterceptor)
 @Public()
 @Controller('search')
 export class SearchController {
@@ -12,14 +13,6 @@ export class SearchController {
 
   @Get()
   async search(@Query('query') query: string) {
-    const users = await this.searchService.searchUsers(query);
-    const blogs = await this.searchService.searchBlogs(query);
-    const categories = await this.searchService.searchCategories(query);
-
-    return {
-      users,
-      blogs,
-      categories,
-    };
+    return await this.searchService.searchData(query);
   }
 }

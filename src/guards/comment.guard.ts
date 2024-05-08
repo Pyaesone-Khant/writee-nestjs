@@ -12,7 +12,7 @@ export class CommentGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const userId = request?.user?.id;
     const commentId = +request?.params.id;
-    const isAuthorized = await this.commentService.isUserAuthorized(userId, commentId);
+    const isAuthorized = await this.commentService.isAuthor(userId, commentId);
     if (!isAuthorized) throw new UnauthorizedException("You are not authorized to perform this action!");
     return true;
   }

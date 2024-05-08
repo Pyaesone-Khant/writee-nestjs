@@ -8,10 +8,10 @@ export class Blog {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ nullable: false, unique: true })
+    @Column({ nullable: false })
     title: string;
 
-    @Column({ nullable: false })
+    @Column({ nullable: false, unique: true })
     slug: string;
 
     @Column("longtext", { nullable: false })

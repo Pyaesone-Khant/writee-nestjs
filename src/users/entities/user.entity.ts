@@ -23,12 +23,15 @@ export class User {
     image: string;
 
     @Column({ default: false, nullable: false })
+    @Exclude()
     is_verified: boolean;
 
     @Column({ default: null })
+    @Exclude()
     otp: string;
 
     @Column({ default: null })
+    @Exclude()
     otp_expiration: string;
 
     @ManyToMany(() => Role, role => role.id)

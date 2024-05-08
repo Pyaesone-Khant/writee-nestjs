@@ -11,7 +11,6 @@ export class RolesService {
 
     async onModuleInit() {
         const rolesCount = await this.roleRepository.count();
-
         if (rolesCount === 0) {
             const roles = [
                 { name: "ADMIN" },

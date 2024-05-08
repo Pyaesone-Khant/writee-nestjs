@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { EmailService } from 'src/email/email.service';
 import { generateOtp } from 'src/helpers/generateOtp';
+import { MessageResponse } from 'src/helpers/message-response.dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
@@ -18,14 +19,14 @@ export class AuthService {
         private emailService: EmailService
     ) { }
 
-    async validateReq(payload: any) {
+    async validateReq(payload: any): Promise<User> {
         const { id } = payload;
         const user = await this.usersService.findOne(+id);
         if (!user) throw new UnauthorizedException("Unauthorized!");
         return user;
     }
 
-    async validateUser(payload: any) {
+    async validateUser(payload: any): Promise<User> {
         const { email } = payload;
         const user = await this.usersService.findByEmail(email)
         if (!user) throw new BadRequestException("Email or password is wrong!");
@@ -40,7 +41,7 @@ export class AuthService {
         return await this.generateAccessToken(user);
     }
 
-    async register(createUserDto: CreateUserDto) {
+    async register(createUserDto: CreateUserDto): Promise<MessageResponse> {
         const { email, password } = createUserDto;
         const user: User = await this.usersService.findByEmail(email);
         if (user && user?.is_verified) throw new BadRequestException("Email already exists!");
@@ -69,11 +70,13 @@ export class AuthService {
             otp,
         }
         await this.emailService.sendEmail(sendMailDto)
-        return { message: "OTP Code has been sent your email address!", user: { name: newUser.name, email: newUser.email } }
+        return { message: "OTP Code has been sent your email address!" }
     }
 
-    async refreshToken(user: any) {
-        const { id, exp } = user
+    async refreshToken(token: string) {
+        if (!token) throw new UnauthorizedException("Token not found")
+        const decoded = await this.jwtService.verifyAsync(token, { secret: process.env.JWT_SECRET, ignoreExpiration: true })
+        const { id, exp } = decoded
         const userFromDb = await this.usersService.findOne(+id);
         if (!userFromDb) throw new NotFoundException("User not found!");
         const isTokenExpired = exp * 1000 < Date.now();
@@ -92,11 +95,11 @@ export class AuthService {
         return bcrypt.hashSync(password, 10);
     }
 
-    isVerified(user: User) {
+    isVerified(user: User): void {
         if (user.is_verified) throw new BadRequestException("Email already verified!");
     }
 
-    async requestOtp(requestOtpDto: RequestOtpDto) {
+    async requestOtp(requestOtpDto: RequestOtpDto): Promise<MessageResponse> {
         const newEmail = requestOtpDto?.newEmail;
         if (newEmail) {
             const isEmailAlreadyExist = await this.usersService.findByEmail(newEmail);
@@ -136,7 +139,7 @@ export class AuthService {
         }
     }
 
-    async verifyOtp(verifyOtp: VerifyOtpDto) {
+    async verifyOtp(verifyOtp: VerifyOtpDto): Promise<MessageResponse> {
         const { otp, email } = verifyOtp;
         const user = await this.usersService.findByEmail(email);
         if (!user) throw new NotFoundException("Email not found!");
@@ -149,7 +152,7 @@ export class AuthService {
         return { message: "Email verified successfully!" };
     }
 
-    async resentOtp(email: string) {
+    async resentOtp(email: string): Promise<MessageResponse> {
         const { otp, otp_expiration } = generateOtp();
         const user = await this.usersService.findByEmail(email);
         if (!user) throw new NotFoundException("Email not found!");
@@ -166,7 +169,7 @@ export class AuthService {
         return { message: "OTP resent successfully!" };
     }
 
-    async forgotPassword(email: string) {
+    async forgotPassword(email: string): Promise<MessageResponse> {
         const user = await this.usersService.findByEmail(email);
         if (!user) throw new NotFoundException("Email not found!");
 

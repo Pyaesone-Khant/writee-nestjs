@@ -1,7 +1,6 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Patch, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AwsService } from 'src/aws/aws.service';
-import { CommentService } from 'src/comment/comment.service';
 import { Public } from "src/decorators/public.decorator";
 import { BlogGuard } from 'src/guards/blog.guard';
 import { fileFilter } from 'src/helpers/fileFilter';
@@ -9,12 +8,12 @@ import { BlogsService } from './blogs.service';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; //2mb
 
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller('blogs')
 export class BlogsController {
     constructor(
         private readonly blogsService: BlogsService,
         private readonly awsService: AwsService,
-        private readonly commentsService: CommentService
     ) { }
 
     @Post()
@@ -24,18 +23,14 @@ export class BlogsController {
             fileSize: MAX_FILE_SIZE
         }
     }))
-    async create(@Req() request: any, @Body() createBlogDto: any, @UploadedFile() file?: Express.Multer.File) {
+    async create(@Req() request: any, @Body() body: any, @UploadedFile() file?: Express.Multer.File) {
         const user_id = request?.user?.id;
-        const { title, description, category_ids } = createBlogDto;
-        const categories = category_ids?.replace(/[\[\]]/g, "").split(",").map(Number); // Convert string to array of numbers
-        createBlogDto.category_ids = categories;
-        if (!title || !description || !category_ids) throw new BadRequestException("Please provide all the required fields!");
+        const createBlogDto = JSON.parse(body.data);
         if (file) {
             const image = await this.awsService.uploadFile(file);
             createBlogDto.image = image;
         }
         await this.blogsService.create(createBlogDto, user_id);
-        return { message: "Blog created successfully!" };
     }
 
     @Public()
@@ -64,12 +59,8 @@ export class BlogsController {
             fileSize: MAX_FILE_SIZE
         }
     }))
-    async update(@Req() request: any, @Param('id') id: string, @Body() updateBlogDto: any, @UploadedFile() file?: Express.Multer.File) {
-
-        const { category_ids } = updateBlogDto;
-        const categories = category_ids?.replace(/[\[\]]/g, "").split(",").map(Number); // Convert string to array of numbers
-        updateBlogDto.category_ids = categories;
-
+    async update(@Req() request: any, @Param('id') id: string, @Body() body: any, @UploadedFile() file?: Express.Multer.File) {
+        const updateBlogDto = JSON.parse(body.data);
         if (file) {
             const blog = await this.blogsService.findOne(+id);
             if (blog.image) {
@@ -78,7 +69,6 @@ export class BlogsController {
             const image = await this.awsService.uploadFile(file);
             updateBlogDto.image = image;
         }
-        delete updateBlogDto.file;
         return this.blogsService.update(+id, updateBlogDto);
     }
 
@@ -91,7 +81,6 @@ export class BlogsController {
     @Public()
     @Get(":id/comments")
     async findCommentsByBlogId(@Param("id") id: string) {
-        await this.findOne(id)
-        return await this.commentsService.findCommentsByBlogId(+id)
+        return await this.blogsService.findComments(+id)
     }
 }
