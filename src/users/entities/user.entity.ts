@@ -2,6 +2,7 @@ import { Exclude } from "class-transformer";
 import { Blog } from "src/blogs/entities/blog.entity";
 import { Comment } from "src/comment/entities/comment.entity";
 import { Role } from "src/roles/entities/role.entity";
+import { Savedblog } from "src/savedblogs/entities/savedblog.entity";
 import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: "users" })
@@ -53,4 +54,7 @@ export class User {
 
     @OneToMany(() => Comment, cmt => cmt.user)
     comments: Comment[]
+
+    @OneToMany(() => Savedblog, savedBlog => savedBlog.user)
+    savedBlogs: Savedblog[]
 }

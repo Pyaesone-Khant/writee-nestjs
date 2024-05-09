@@ -26,6 +26,8 @@ import { Role } from './roles/entities/role.entity';
 import { RolesController } from './roles/roles.controller';
 import { RolesModule } from './roles/roles.module';
 import { RolesService } from './roles/roles.service';
+import { Savedblog } from './savedblogs/entities/savedblog.entity';
+import { SavedblogsModule } from './savedblogs/savedblogs.module';
 import { SearchModule } from './search/search.module';
 import { User } from './users/entities/user.entity';
 import { UsersController } from './users/users.controller';
@@ -41,10 +43,11 @@ import { UsersService } from './users/users.service';
         AuthModule,
         RolesModule,
         CommentModule,
+        SavedblogsModule,
         ConfigModule.forRoot({
             isGlobal: true
         }),
-        TypeOrmModule.forFeature([User, Blog, Category, Role, Comment]),
+        TypeOrmModule.forFeature([User, Blog, Category, Role, Comment, Savedblog]),
         TypeOrmModule.forRootAsync({
             imports: [ConfigModule],
             useFactory: (configService: ConfigService) => ({
@@ -70,7 +73,7 @@ import { UsersService } from './users/users.service';
         CategoriesController,
         BlogsController,
         AuthController,
-        RolesController
+        RolesController,
     ],
     providers: [
         AppService,
