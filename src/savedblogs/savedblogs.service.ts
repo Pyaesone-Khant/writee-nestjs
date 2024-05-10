@@ -30,7 +30,10 @@ export class SavedblogsService {
 
   async findAll(userId: number): Promise<Blog[]> {
     const blogs = await this.savedblogRepository.find({ where: { user: { id: userId } }, relations: ['blog', 'blog.categories', 'blog.user'] });
-    return blogs.map(b => b.blog)
+    return blogs.map(b => ({
+      ...b.blog,
+      isSaved: true
+    }))
   }
 
   async findOne({ userId, blogId }: { userId: number, blogId: number }) {

@@ -35,8 +35,9 @@ export class BlogsController {
 
     @Public()
     @Get()
-    findAll() {
-        return this.blogsService.findAll();
+    findAll(@Req() req: any) {
+        const token = req.headers.authorization?.split(" ")[1];
+        return this.blogsService.findAll(token);
     }
 
     @Public()

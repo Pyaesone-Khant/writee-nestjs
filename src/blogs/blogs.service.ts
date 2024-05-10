@@ -1,4 +1,5 @@
 import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoriesService } from 'src/categories/categories.service';
 import { Comment } from 'src/comment/entities/comment.entity';
@@ -16,6 +17,7 @@ export class BlogsService {
         @InjectRepository(Blog) private readonly blogRepository: Repository<Blog>,
         @Inject(forwardRef(() => CategoriesService)) private readonly categoriesService: CategoriesService,
         @Inject(forwardRef(() => UsersService)) private readonly usersService: UsersService,
+        private readonly jwtService: JwtService
     ) { }
 
     async create(createBlogDto: CreateBlogDto, userId: number): Promise<Blog> {
@@ -30,8 +32,17 @@ export class BlogsService {
         return await this.blogRepository.save(blog)
     }
 
-    async findAll(): Promise<Blog[]> {
-        return await this.blogRepository.find({ relations: ['categories', 'user'], order: { id: "DESC" } })
+    async findAll(token: string) {
+
+        const decoded = token && await this.jwtService.verify(token, { secret: process.env.SECRET_KEY });
+        const blogs = await this.blogRepository.find({ relations: ['categories', 'user'], order: { id: "DESC" } });
+        const user = await this.usersService.findOne(decoded?.id);
+        const savedBlogsIds = user.savedBlogs?.map((blog) => blog.blog.id)
+        const resBlogs = blogs?.map((blog) => ({
+            ...blog,
+            isSaved: token ? savedBlogsIds.includes(blog.id) : false
+        }))
+        return resBlogs;
     }
 
     async findOne(id: number): Promise<Blog> {

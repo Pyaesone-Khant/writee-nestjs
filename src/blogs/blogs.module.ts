@@ -1,4 +1,5 @@
 import { forwardRef, Module } from "@nestjs/common";
+import { JwtModule } from "@nestjs/jwt";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { AwsModule } from "src/aws/aws.module";
 import { CategoriesModule } from "src/categories/categories.module";
@@ -12,7 +13,8 @@ import { Blog } from "./entities/blog.entity";
         TypeOrmModule.forFeature([Blog]),
         AwsModule,
         forwardRef(() => CategoriesModule),
-        forwardRef(() => UsersModule)
+        forwardRef(() => UsersModule),
+        JwtModule
     ],
     controllers: [BlogsController],
     providers: [BlogsService],
