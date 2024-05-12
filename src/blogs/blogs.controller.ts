@@ -1,6 +1,7 @@
 import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Patch, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AwsService } from 'src/aws/aws.service';
+import { BlogResponseInterceptor } from 'src/blog-response.interceptor';
 import { Public } from "src/decorators/public.decorator";
 import { BlogGuard } from 'src/guards/blog.guard';
 import { fileFilter } from 'src/helpers/fileFilter';
@@ -23,35 +24,35 @@ export class BlogsController {
             fileSize: MAX_FILE_SIZE
         }
     }))
-    async create(@Req() request: any, @Body() body: any, @UploadedFile() file?: Express.Multer.File) {
-        const user_id = request?.user?.id;
+    async create(@Req() req: any, @Body() body: any, @UploadedFile() file?: Express.Multer.File) {
+        const userId = req?.user?.id;
         const createBlogDto = JSON.parse(body.data);
         if (file) {
             const image = await this.awsService.uploadFile(file);
             createBlogDto.image = image;
         }
-        await this.blogsService.create(createBlogDto, user_id);
+        await this.blogsService.create(createBlogDto, userId);
     }
 
     @Public()
+    @UseInterceptors(BlogResponseInterceptor)
     @Get()
-    findAll(@Req() req: any) {
-        const token = req.headers.authorization?.split(" ")[1];
-        return this.blogsService.findAll(token);
+    findAll() {
+        return this.blogsService.findAll();
     }
 
     @Public()
+    @UseInterceptors(BlogResponseInterceptor)
     @Get("slug/:slug")
-    findBySlug(@Req() req: any, @Param("slug") slug: string) {
-        const token = req.headers.authorization?.split(" ")[1];
-        return this.blogsService.findBySlug(slug, token)
+    findBySlug(@Param("slug") slug: string) {
+        return this.blogsService.findBySlug(slug)
     }
 
     @Public()
+    @UseInterceptors(BlogResponseInterceptor)
     @Get(':id')
-    findOne(@Req() req: any, @Param('id') id: string) {
-        const token = req.headers.authorization?.split(" ")[1];
-        return this.blogsService.findOne(+id, token);
+    findOne(@Param('id') id: string) {
+        return this.blogsService.findOne(+id);
     }
 
     @UseGuards(BlogGuard)
@@ -62,7 +63,7 @@ export class BlogsController {
             fileSize: MAX_FILE_SIZE
         }
     }))
-    async update(@Req() request: any, @Param('id') id: string, @Body() body: any, @UploadedFile() file?: Express.Multer.File) {
+    async update(@Req() req: any, @Param('id') id: string, @Body() body: any, @UploadedFile() file?: Express.Multer.File) {
         const updateBlogDto = JSON.parse(body.data);
         if (file) {
             const blog = await this.blogsService.findOne(+id);
@@ -77,7 +78,7 @@ export class BlogsController {
 
     @UseGuards(BlogGuard)
     @Delete(':id')
-    remove(@Req() request: any, @Param('id') id: string) {
+    remove(@Req() req: any, @Param('id') id: string) {
         return this.blogsService.remove(+id);
     }
 
@@ -88,8 +89,8 @@ export class BlogsController {
     }
 
     @Post(":id/react")
-    async react(@Req() request: any, @Param("id") id: string) {
-        const userId = request?.user?.id;
+    async react(@Req() req: any, @Param("id") id: string) {
+        const userId = req?.user?.id;
         return await this.blogsService.reactBlog(+id, userId);
     }
 }

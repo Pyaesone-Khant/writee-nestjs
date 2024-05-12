@@ -11,9 +11,9 @@ export class SearchService {
     private readonly categoriesService: CategoriesService
   ) { }
 
-  async searchData(query: string, token?: string) {
+  async searchData(query: string): Promise<any> {
     const users = await this.usersService.searchUsers(query)
-    const blogs = await this.blogsService.searchBlogs(query, token)
+    const blogs = await this.blogsService.searchBlogs(query)
     const categories = await this.categoriesService.searchCategories(query);
 
     return {

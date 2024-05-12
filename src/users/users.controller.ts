@@ -1,5 +1,6 @@
 import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Patch, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { BlogResponseInterceptor } from 'src/blog-response.interceptor';
 import { Public } from 'src/decorators/public.decorator';
 import { Roles } from 'src/decorators/roles.decorator';
 import { RolesGuard } from 'src/guards/auth/roles.guard';
@@ -31,10 +32,10 @@ export class UsersController {
     }
 
     @Public()
+    @UseInterceptors(BlogResponseInterceptor)
     @Get(':id/blogs')
-    findBlogs(@Req() req: any, @Param('id') id: string) {
-        const token = req.headers.authorization?.split(" ")[1];
-        return this.usersService.findBlogs(+id, token);
+    findBlogs(@Param('id') id: string) {
+        return this.usersService.findBlogs(+id);
     }
 
     @Public()

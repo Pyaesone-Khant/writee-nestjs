@@ -1,7 +1,6 @@
-import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from "bcrypt";
-import { AuthService } from 'src/auth/auth.service';
 import { AwsService } from 'src/aws/aws.service';
 import { Blog } from 'src/blogs/entities/blog.entity';
 import { EmailService } from 'src/email/email.service';
@@ -23,7 +22,6 @@ export class UsersService {
         private readonly rolesService: RolesService,
         private readonly awsService: AwsService,
         private readonly emailService: EmailService,
-        @Inject(forwardRef(() => AuthService)) private readonly authService: AuthService,
     ) { }
 
     async create(createUserDto: CreateUserDto): Promise<User> {
@@ -158,17 +156,9 @@ export class UsersService {
         return { message: "Profile image removed successfully!" }
     }
 
-    async findBlogs(id: number, token?: string): Promise<Blog[]> {
-
-        const reqUser = await this.authService.decodeToken(token);
-        const reqUserSavedBlogIds = reqUser ? reqUser?.savedBlogs.map(b => b.blog.id) : [];
-
+    async findBlogs(id: number): Promise<Blog[]> {
         const user = await this.userRepository.findOne({ where: { id }, relations: ["blogs", "blogs.categories", "blogs.user"] });
-
-        return user.blogs?.map(blog => {
-            const isSaved = reqUserSavedBlogIds?.includes(blog.id);
-            return { ...blog, isSaved }
-        });
+        return user.blogs;
     }
 
     async searchUsers(query: string): Promise<User[]> {

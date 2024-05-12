@@ -14,7 +14,7 @@ import { UsersService } from "./users.service";
         AwsModule,
         EmailModule,
         RolesModule,
-        forwardRef(() => AuthModule)
+        forwardRef(() => AuthModule) // auth module is imported to use the AuthService in BlogResponseInterceptor
     ],
     controllers: [UsersController],
     providers: [UsersService],

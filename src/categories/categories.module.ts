@@ -10,7 +10,7 @@ import { Category } from './entities/category.entity';
     imports: [
         TypeOrmModule.forFeature([Category]),
         SavedblogsModule,
-        AuthModule,
+        AuthModule, // auth module is imported to use the AuthService in BlogResponseInterceptor
     ],
     controllers: [CategoriesController],
     providers: [CategoriesService],
