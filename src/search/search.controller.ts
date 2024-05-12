@@ -1,4 +1,4 @@
-import { ClassSerializerInterceptor, Controller, Get, Query, UseInterceptors } from '@nestjs/common';
+import { ClassSerializerInterceptor, Controller, Get, Query, Req, UseInterceptors } from '@nestjs/common';
 import { Public } from 'src/decorators/public.decorator';
 import { SearchService } from './search.service';
 
@@ -12,7 +12,8 @@ export class SearchController {
   ) { }
 
   @Get()
-  async search(@Query('query') query: string) {
-    return await this.searchService.searchData(query);
+  async search(@Req() req: any, @Query('query') query: string) {
+    const token = req.headers.authorization?.split(" ")[1];
+    return await this.searchService.searchData(query, token);
   }
 }

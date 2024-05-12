@@ -1,6 +1,7 @@
 import { Exclude } from "class-transformer";
 import { Blog } from "src/blogs/entities/blog.entity";
 import { Comment } from "src/comment/entities/comment.entity";
+import { Reaction } from "src/reaction/entities/reaction.entity";
 import { Role } from "src/roles/entities/role.entity";
 import { Savedblog } from "src/savedblogs/entities/savedblog.entity";
 import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
@@ -57,4 +58,7 @@ export class User {
 
     @OneToMany(() => Savedblog, savedBlog => savedBlog.user)
     savedBlogs: Savedblog[]
+
+    @OneToMany(() => Reaction, reaction => reaction.user)
+    reactions: Reaction[]
 }

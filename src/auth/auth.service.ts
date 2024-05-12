@@ -186,4 +186,14 @@ export class AuthService {
         return { message: "OTP sent successfully!" };
     }
 
+    async decodeToken(token: string): Promise<any> {
+        try {
+            const data = await this.jwtService.verify(token, { secret: process.env.SECRET_KEY });
+            if (!data) return false;
+            return await this.usersService.findOne(data.id);
+        } catch (err) {
+            return false;
+        }
+    }
+
 }

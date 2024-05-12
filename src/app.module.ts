@@ -33,6 +33,7 @@ import { User } from './users/entities/user.entity';
 import { UsersController } from './users/users.controller';
 import { UsersModule } from './users/users.module';
 import { UsersService } from './users/users.service';
+import { ReactionModule } from './reaction/reaction.module';
 
 @Module({
     imports: [
@@ -66,6 +67,7 @@ import { UsersService } from './users/users.service';
         EmailModule,
         AwsModule,
         SearchModule,
+        ReactionModule,
     ],
     controllers: [
         AppController,

@@ -1,6 +1,6 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Blog } from 'src/blogs/entities/blog.entity';
+import { AuthService } from 'src/auth/auth.service';
 import { ILike, In, Repository } from 'typeorm';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -9,7 +9,9 @@ import { Category } from './entities/category.entity';
 @Injectable()
 export class CategoriesService {
     constructor(
-        @InjectRepository(Category) private readonly categoryRepository: Repository<Category>) { }
+        @InjectRepository(Category) private readonly categoryRepository: Repository<Category>,
+        private readonly authService: AuthService,
+    ) { }
 
     async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
         const isExist = await this.categoryRepository.findOne({ where: { title: createCategoryDto.title } });
@@ -51,9 +53,15 @@ export class CategoriesService {
         return true;
     }
 
-    async findBlogsByCategory(id: number): Promise<Blog[]> {
+    async findBlogsByCategory(id: number, token?: string): Promise<object[]> {
+
+        const reqUser = await this.authService.decodeToken(token);
+        const savedBlogsId = reqUser ? reqUser?.savedBlogs.map(b => b.blog.id) : []
         const category = await this.categoryRepository.findOne({ where: { id }, relations: ["blogs", "blogs.categories", "blogs.user"] })
-        return category.blogs;
+        return category.blogs.map(blog => {
+            const isSaved = savedBlogsId?.includes(blog.id);
+            return { ...blog, isSaved }
+        });
     }
 
     async searchCategories(query: string): Promise<Category[]> {

@@ -1,5 +1,6 @@
 import { Category } from "src/categories/entities/category.entity";
 import { Comment } from "src/comment/entities/comment.entity";
+import { Reaction } from "src/reaction/entities/reaction.entity";
 import { User } from "src/users/entities/user.entity";
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
@@ -39,4 +40,7 @@ export class Blog {
 
     @OneToMany(() => Comment, cmt => cmt.blog)
     comments: Comment[]
+
+    @OneToMany(() => Reaction, reaction => reaction.blog)
+    reactions: Reaction[]
 } 

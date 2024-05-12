@@ -1,11 +1,11 @@
 import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AuthService } from 'src/auth/auth.service';
 import { CategoriesService } from 'src/categories/categories.service';
 import { Comment } from 'src/comment/entities/comment.entity';
 import { generateSlug } from 'src/helpers/generateSlug';
 import { MessageResponse } from 'src/helpers/message-response.dto';
-import { UsersService } from 'src/users/users.service';
+import { ReactionService } from 'src/reaction/reaction.service';
 import { ILike, Repository } from 'typeorm';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
@@ -16,40 +16,43 @@ export class BlogsService {
     constructor(
         @InjectRepository(Blog) private readonly blogRepository: Repository<Blog>,
         @Inject(forwardRef(() => CategoriesService)) private readonly categoriesService: CategoriesService,
-        @Inject(forwardRef(() => UsersService)) private readonly usersService: UsersService,
-        private readonly jwtService: JwtService
+        private readonly authService: AuthService,
+        private readonly reactionService: ReactionService,
     ) { }
 
     async create(createBlogDto: CreateBlogDto, userId: number): Promise<Blog> {
         const { title, category_ids, description } = createBlogDto;
         if (!title || !description || !category_ids) throw new BadRequestException("Title, description and category ids are required!");
-        const user = await this.usersService.findOne(userId);
         await this.categoriesService.validateIds(category_ids);
         const categories = await this.categoriesService.findCategoryByIds(category_ids)
         delete createBlogDto.category_ids;
         const slug = generateSlug(title);
-        const blog = this.blogRepository.create({ ...createBlogDto, user, categories, slug });
+        const blog = this.blogRepository.create({ ...createBlogDto, user: { id: userId }, categories, slug });
         return await this.blogRepository.save(blog)
     }
 
-    async findAll(token: string) {
-
-        const decoded = token && await this.jwtService.verify(token, { secret: process.env.SECRET_KEY });
+    async findAll(token?: string) {
+        const reqUser = await this.authService.decodeToken(token);
         const blogs = await this.blogRepository.find({ relations: ['categories', 'user'], order: { id: "DESC" } });
-        const user = await this.usersService.findOne(decoded?.id);
-        const savedBlogsIds = user.savedBlogs?.map((blog) => blog.blog.id)
-        const resBlogs = blogs?.map((blog) => ({
-            ...blog,
-            isSaved: token ? savedBlogsIds.includes(blog.id) : false
-        }))
+        const savedBlogsIds = reqUser ? reqUser?.savedBlogs?.map(b => b.blog.id) : [];
+        const resBlogs = blogs?.map((blog) => {
+            const isSaved = savedBlogsIds?.includes(blog.id);
+            return { ...blog, isSaved }
+        })
         return resBlogs;
     }
 
-    async findOne(id: number): Promise<Blog> {
-        const blog = await this.blogRepository.findOne({ where: { id }, relations: ['categories', 'user'] });
-
+    async findOne(id: number, token?: string) {
+        const reqUser = await this.authService.decodeToken(token);
+        const savedBlogsIds = reqUser ? reqUser?.savedBlogs.map(b => b.blog.id) : []
+        const isSaved = savedBlogsIds?.includes(id);
+        const blog = await this.blogRepository.findOne({ where: { id }, relations: ['categories', 'user', 'reactions.user'] });
         if (!blog) throw new NotFoundException("Blog not found!");
-        return blog;
+        return {
+            ...blog,
+            reactions: blog.reactions.map((reaction) => reaction.user),
+            isSaved
+        };
     }
 
     async update(id: number, updateBlogDto: UpdateBlogDto): Promise<MessageResponse> {
@@ -80,11 +83,16 @@ export class BlogsService {
         return await this.blogRepository.findOne({ where: { title }, relations: ['categories', 'user'] });
     }
 
-    async findBySlug(slug: string): Promise<Blog> {
-        const blog = await this.blogRepository.findOne({ where: { slug }, relations: ['categories', 'user'] });
-
+    async findBySlug(slug: string, token?: string) {
+        const reqUser = await this.authService.decodeToken(token);
+        const savedBlogsIds = reqUser ? reqUser?.savedBlogs.map(b => b.blog.id) : []
+        const blog = await this.blogRepository.findOne({ where: { slug }, relations: ['categories', 'user', 'reactions', 'reactions.user'] });
+        const isSaved = savedBlogsIds?.includes(blog.id);
         if (!blog) throw new NotFoundException("Blog not found!");
-        return blog;
+        return {
+            ...blog,
+            isSaved
+        };
     }
 
     async findComments(id: number): Promise<Comment[]> {
@@ -95,14 +103,33 @@ export class BlogsService {
 
     async isAuthor(userId: number, id: number): Promise<boolean> {
         const blog = await this.findOne(id)
-        return blog.user?.id === userId;
+        return blog?.user?.id === userId;
     }
 
-    async searchBlogs(query: string): Promise<Blog[]> {
-        return await this.blogRepository.find({
+    async searchBlogs(query: string, token?: string): Promise<object[]> {
+        const blogs = await this.blogRepository.find({
             where: [
                 { title: ILike(`%${query}%`) },
             ], relations: ['user', 'categories']
         });
+
+        const reqUser = await this.authService.decodeToken(token);
+        const savedBlogsIds = reqUser ? reqUser?.savedBlogs.map(b => b.blog.id) : [];
+        return blogs?.map(blog => {
+            const isSaved = savedBlogsIds?.includes(blog.id);
+            return { ...blog, isSaved }
+        });
+    }
+
+    async reactBlog(blogId: number, userId: number): Promise<MessageResponse> {
+        await this.findOne(blogId);
+        const reaction = await this.reactionService.findOne({ blogId, userId });
+        if (reaction) {
+            await this.reactionService.remove({ blogId, userId });
+            return { message: "Reaction removed!" }
+        }
+
+        await this.reactionService.create(userId, { blogId });
+        return { message: "Reacted!" }
     }
 }

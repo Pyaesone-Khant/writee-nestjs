@@ -32,8 +32,9 @@ export class UsersController {
 
     @Public()
     @Get(':id/blogs')
-    findBlogs(@Param('id') id: string) {
-        return this.usersService.findBlogs(+id);
+    findBlogs(@Req() req: any, @Param('id') id: string) {
+        const token = req.headers.authorization?.split(" ")[1];
+        return this.usersService.findBlogs(+id, token);
     }
 
     @Public()

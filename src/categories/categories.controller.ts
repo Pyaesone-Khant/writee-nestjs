@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Patch, Post, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Public } from 'src/decorators/public.decorator';
 import { Roles } from 'src/decorators/roles.decorator';
 import { RolesGuard } from 'src/guards/auth/roles.guard';
@@ -28,8 +28,9 @@ export class CategoriesController {
 
     @Public()
     @Get(":id/blogs")
-    findBlogs(@Param('id') id: string) {
-        return this.categoriesService.findBlogsByCategory(+id);
+    findBlogs(@Req() req: any, @Param('id') id: string) {
+        const token = req.headers.authorization.split(" ")[1];
+        return this.categoriesService.findBlogsByCategory(+id, token);
     }
 
     @Public()

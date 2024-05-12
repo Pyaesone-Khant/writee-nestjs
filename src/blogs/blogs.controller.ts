@@ -42,14 +42,16 @@ export class BlogsController {
 
     @Public()
     @Get("slug/:slug")
-    findBySlug(@Param("slug") slug: string) {
-        return this.blogsService.findBySlug(slug)
+    findBySlug(@Req() req: any, @Param("slug") slug: string) {
+        const token = req.headers.authorization?.split(" ")[1];
+        return this.blogsService.findBySlug(slug, token)
     }
 
     @Public()
     @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.blogsService.findOne(+id);
+    findOne(@Req() req: any, @Param('id') id: string) {
+        const token = req.headers.authorization?.split(" ")[1];
+        return this.blogsService.findOne(+id, token);
     }
 
     @UseGuards(BlogGuard)
@@ -83,5 +85,11 @@ export class BlogsController {
     @Get(":id/comments")
     async findCommentsByBlogId(@Param("id") id: string) {
         return await this.blogsService.findComments(+id)
+    }
+
+    @Post(":id/react")
+    async react(@Req() request: any, @Param("id") id: string) {
+        const userId = request?.user?.id;
+        return await this.blogsService.reactBlog(+id, userId);
     }
 }
