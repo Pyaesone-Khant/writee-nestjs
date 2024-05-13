@@ -24,7 +24,7 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Developed a web service with NestJS for [Writee](https://writee.netlify.app), a blog app inspired by MEDIUM which was once bulit with Express JS.
 
 ## Installation
 
