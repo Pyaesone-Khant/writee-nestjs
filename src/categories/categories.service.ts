@@ -57,6 +57,13 @@ export class CategoriesService {
         return category.blogs;
     }
 
+    async findBlogsByCategories(catIds: string): Promise<Blog[]> {
+        const ids = catIds.split(",").map(id => +id);
+        return await this.categoryRepository.find({ where: { id: In(ids) }, relations: ["blogs", "blogs.categories", "blogs.user"] }).then(categories => {
+            return categories.map(category => category.blogs).flat();
+        })
+    }
+
     async searchCategories(query: string): Promise<Category[]> {
         return await this.categoryRepository.find({
             where: [

@@ -16,9 +16,8 @@ export class CommentService {
   ) { }
 
   async create(userId: number, createCommentDto: CreateCommentDto): Promise<Comment> {
-    const user = await this.usersService.findOne(userId)
-    const blog = await this.blogsService.findOne(createCommentDto.blog_id)
-    const comment = this.commentRepository.create({ ...createCommentDto, user, blog });
+
+    const comment = this.commentRepository.create({ ...createCommentDto, user: { id: userId }, blog: { id: createCommentDto.blogId } });
     return await this.commentRepository.save(comment);
   }
 
