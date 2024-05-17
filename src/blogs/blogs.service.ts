@@ -1,6 +1,7 @@
 import { BadRequestException, forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoriesService } from 'src/categories/categories.service';
+import { CommentService } from 'src/comment/comment.service';
 import { Comment } from 'src/comment/entities/comment.entity';
 import { generateSlug } from 'src/helpers/generateSlug';
 import { MessageResponse } from 'src/helpers/message-response.dto';
@@ -16,6 +17,7 @@ export class BlogsService {
         @InjectRepository(Blog) private readonly blogRepository: Repository<Blog>,
         @Inject(forwardRef(() => CategoriesService)) private readonly categoriesService: CategoriesService,
         private readonly reactionService: ReactionService,
+        private readonly commentService: CommentService
     ) { }
 
     async create(createBlogDto: CreateBlogDto, userId: number): Promise<Blog> {
@@ -57,7 +59,16 @@ export class BlogsService {
     }
 
     async remove(id: number) {
-        await this.findOne(id);
+        const blog = await this.findOne(id);
+
+        blog.categories = [];
+        blog.comments = [];
+        blog.reactions = [];
+
+        await this.commentService.removeByBlogId(id);
+        await this.reactionService.removeByBlogId(id);
+
+        await this.blogRepository.save(blog);
         return await this.blogRepository.delete(id);
     }
 

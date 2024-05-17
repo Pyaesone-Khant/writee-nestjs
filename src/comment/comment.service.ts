@@ -16,7 +16,6 @@ export class CommentService {
   ) { }
 
   async create(userId: number, createCommentDto: CreateCommentDto): Promise<Comment> {
-
     const comment = this.commentRepository.create({ ...createCommentDto, user: { id: userId }, blog: { id: createCommentDto.blogId } });
     return await this.commentRepository.save(comment);
   }
@@ -50,6 +49,10 @@ export class CommentService {
   async remove(id: number) {
     await this.findOne(id)
     return await this.commentRepository.delete(id)
+  }
+
+  async removeByBlogId(blogId: number) {
+    return await this.commentRepository.delete({ blog: { id: blogId } });
   }
 
   async findByBlogId(blogId: number): Promise<Comment[]> {

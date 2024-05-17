@@ -29,4 +29,8 @@ export class ReactionService {
   async remove({ blogId, userId }: { blogId: number; userId: number }) {
     return await this.reactionRepository.delete({ blog: { id: blogId }, user: { id: userId } })
   }
+
+  async removeByBlogId(blogId: number) {
+    return await this.reactionRepository.delete({ blog: { id: blogId } })
+  }
 }

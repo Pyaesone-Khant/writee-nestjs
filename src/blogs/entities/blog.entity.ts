@@ -2,7 +2,7 @@ import { Category } from "src/categories/entities/category.entity";
 import { Comment } from "src/comment/entities/comment.entity";
 import { Reaction } from "src/reaction/entities/reaction.entity";
 import { User } from "src/users/entities/user.entity";
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: "blogs" })
 export class Blog {
@@ -21,6 +21,9 @@ export class Blog {
     @Column({ default: null })
     image: string;
 
+    @CreateDateColumn({ name: "created_at", type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
+    created_at: Date;
+
     @ManyToMany(() => Category, category => category.blogs)
     @JoinTable({
         name: "blog_category_id",
@@ -31,7 +34,7 @@ export class Blog {
         inverseJoinColumn: {
             name: "category_id",
             referencedColumnName: "id"
-        }
+        },
     })
     categories: Category[];
 
