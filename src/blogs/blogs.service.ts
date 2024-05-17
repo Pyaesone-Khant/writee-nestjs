@@ -82,8 +82,7 @@ export class BlogsService {
 
     async findComments(id: number): Promise<Comment[]> {
         await this.findOne(id);
-        const blog = await this.blogRepository.findOne({ where: { id }, relations: ['comments', 'comments.user'] });
-        return blog.comments;
+        return await this.commentService.findByBlogId(id);
     }
 
     async isAuthor(userId: number, id: number): Promise<boolean> {

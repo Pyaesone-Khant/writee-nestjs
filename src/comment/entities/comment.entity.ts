@@ -10,9 +10,13 @@ export class Comment {
     @Column("text", { nullable: false })
     comment: string;
 
+    @Column({ type: "int", default: null })
+    parentId: number;
+
     @ManyToOne(() => Blog, blog => blog.comments)
     blog: Blog
 
     @ManyToOne(() => User, user => user.comments)
     user: User
 }
+

@@ -1,7 +1,5 @@
-import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { BlogsService } from 'src/blogs/blogs.service';
-import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
@@ -11,8 +9,6 @@ import { Comment } from './entities/comment.entity';
 export class CommentService {
   constructor(
     @InjectRepository(Comment) private readonly commentRepository: Repository<Comment>,
-    @Inject(forwardRef(() => BlogsService)) private readonly blogsService: BlogsService,
-    @Inject(forwardRef(() => UsersService)) private readonly usersService: UsersService
   ) { }
 
   async create(userId: number, createCommentDto: CreateCommentDto): Promise<Comment> {
@@ -21,17 +17,16 @@ export class CommentService {
   }
 
   async findAll() {
-    const comments = await this.commentRepository.find({ relations: ['user', 'blog'] });
+    const comments = await this.commentRepository.find({ relations: ['user', 'user.roles'] });
 
-    const data = comments.map(comment => {
-      return {
-        id: comment.id,
-        comment: comment.comment,
-        blogId: comment.blog.id,
-        userId: comment.user.id
-      }
-    })
+    return comments.map(comment => ({
+      ...comment,
+      replies: this.findReplies(comment.id, comments)
+    }))
+  }
 
+  findReplies(parentId: number, comments: Comment[] = []) {
+    const data = comments.filter(cmt => cmt.parentId === parentId)
     return data;
   }
 
@@ -56,7 +51,11 @@ export class CommentService {
   }
 
   async findByBlogId(blogId: number): Promise<Comment[]> {
-    return await this.commentRepository.find({ where: { blog: { id: blogId } }, relations: ['user', 'user.roles'] });
+    const comments = await this.commentRepository.find({ where: { blog: { id: blogId } }, relations: ['user', 'user.roles'] });
+    return comments.filter(comment => comment.parentId === null).map(comment => ({
+      ...comment,
+      replies: this.findReplies(comment.id, comments)
+    }))
   }
 
   async isAuthor(userId: number, commentId: number): Promise<boolean> {
