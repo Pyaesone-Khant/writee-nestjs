@@ -20,7 +20,7 @@ export class BlogsService {
         private readonly commentService: CommentService
     ) { }
 
-    async create(createBlogDto: CreateBlogDto, userId: number): Promise<Blog> {
+    async create(createBlogDto: CreateBlogDto, userId: number): Promise<MessageResponse> {
         const { title, category_ids, description } = createBlogDto;
         if (!title || !description || !category_ids) throw new BadRequestException("Title, description and category ids are required!");
         await this.categoriesService.validateIds(category_ids);
@@ -28,7 +28,8 @@ export class BlogsService {
         delete createBlogDto.category_ids;
         const slug = generateSlug(title);
         const blog = this.blogRepository.create({ ...createBlogDto, user: { id: userId }, categories, slug });
-        return await this.blogRepository.save(blog)
+        await this.blogRepository.save(blog)
+        return { message: "Blog created successfully!" };
     }
 
     async findAll(): Promise<Blog[]> {

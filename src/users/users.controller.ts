@@ -86,8 +86,16 @@ export class UsersController {
         await this.usersService.removeProfileImage(userId)
     }
 
-    @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.usersService.remove(+id);
+
+    @Delete('deactivate-account')
+    async deactivateAccount(@Req() req: any, @Body() payload: { password: string }) {
+        const { id: userId } = req.user;
+        return await this.usersService.deactivateAccount(+userId, payload.password);
+    }
+
+    @Post("verify-deactivate-account")
+    async verifyDeactivateAccount(@Req() request: any, @Body() payload: { otp: string }) {
+        const { id: userId } = request?.user;
+        return await this.usersService.verifyAccountDeactivation(+userId, payload.otp);
     }
 }

@@ -46,9 +46,45 @@ export class UsersService {
         return await this.userRepository.update(id, updateUserDto);
     }
 
-    async remove(id: number) {
-        await this.findOne(id);
-        return await this.userRepository.delete(id);
+    async deactivateAccount(id: number, password: string): Promise<MessageResponse> {
+        const user = await this.findOne(id);
+        const isPwsCorrect = await bcrypt.compare(password, user.password);
+        if (!isPwsCorrect) throw new BadRequestException("Password is incorrect!");
+
+        const { otp, otp_expiration } = generateOtp()
+
+        await this.emailService.sendEmail({
+            subject: "Account Deactivation",
+            user: {
+                name: user.name,
+                email: user.email
+            },
+            template: "./deactivate-account",
+            otp,
+        })
+
+        user.otp = otp;
+        user.otp_expiration = otp_expiration;
+        await this.userRepository.save(user);
+        return { message: "Please verify your email to deactivate account!" }
+    }
+
+    async verifyAccountDeactivation(id: number, otp: string): Promise<MessageResponse> {
+        const user = await this.findOne(id);
+        if (user.otp !== otp) {
+            throw new BadRequestException("Invalid OTP!");
+        }
+
+        if (+user.otp_expiration < Date.now()) {
+            throw new BadRequestException("OTP expired!");
+        }
+
+        user.email = "deactivated_" + user.email;
+        user.otp = null;
+        user.otp_expiration = null;
+        user.is_active = false;
+        await this.userRepository.save(user);
+        return { message: "Account deactivated successfully!" }
     }
 
     async findByEmail(email: string): Promise<User> {
@@ -108,7 +144,8 @@ export class UsersService {
             user: {
                 name: user.name,
                 email: newEmail
-            }
+            },
+            template: "./verify",
         }
 
         await this.emailService.sendEmail(sendMailDto);

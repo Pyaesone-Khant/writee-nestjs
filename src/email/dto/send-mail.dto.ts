@@ -4,6 +4,8 @@ export class SendMailDto {
 
     otp: string;
 
+    template: string;
+
     user: {
         name: string;
         email: string;

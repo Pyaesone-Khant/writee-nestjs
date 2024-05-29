@@ -28,6 +28,9 @@ export class User {
     @Exclude()
     is_verified: boolean;
 
+    @Column({ default: false, nullable: false })
+    is_active: boolean;
+
     @Column({ default: null })
     @Exclude()
     otp: string;

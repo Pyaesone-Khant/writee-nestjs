@@ -10,11 +10,11 @@ export class EmailService {
     ) { }
 
     async sendEmail(sendMailDto: SendMailDto) {
-        const { user, subject, otp } = sendMailDto;
+        const { user, subject, otp, template } = sendMailDto;
         await this.mailerService.sendMail({
             to: user.email,
             subject: subject,
-            template: "./verify",
+            template: template,
             context: {
                 username: user.name,
                 otp,

@@ -54,6 +54,7 @@ export class AuthService {
             const sendMailDto = {
                 user: { email, name: user.name },
                 subject: "Email Verification",
+                template: "./verify",
                 otp,
             }
             await this.emailService.sendEmail(sendMailDto);
@@ -67,6 +68,7 @@ export class AuthService {
         const sendMailDto = {
             user: newUser,
             subject: "Email Verification",
+            template: "./verify",
             otp,
         }
         await this.emailService.sendEmail(sendMailDto)
@@ -114,6 +116,7 @@ export class AuthService {
             const sendMailDto = {
                 user: { email: newEmail, name: user.name },
                 subject: "Email Verification",
+                template: "./verify",
                 otp,
             }
             await this.emailService.sendEmail(sendMailDto);
@@ -132,6 +135,7 @@ export class AuthService {
             const sendMailDto = {
                 user: { email: email, name: user.name },
                 subject: "Email Verification",
+                template: "./verify",
                 otp,
             }
             await this.emailService.sendEmail(sendMailDto);
@@ -147,7 +151,7 @@ export class AuthService {
         if (user.otp !== otp) throw new BadRequestException("Invalid OTP!");
 
         if (+user.otp_expiration < Date.now()) throw new BadRequestException("OTP expired!");
-        await this.usersService.update(user.id, { otp: null, otp_expiration: null, is_verified: true });
+        await this.usersService.update(user.id, { otp: null, otp_expiration: null, is_verified: true, is_active: true});
 
         return { message: "Email verified successfully!" };
     }
@@ -162,6 +166,7 @@ export class AuthService {
         const sendMailDto = {
             user: { email: email, name: user.name },
             subject: "Email Verification",
+            template: "./verify",
             otp,
         }
         await this.emailService.sendEmail(sendMailDto);
@@ -179,6 +184,7 @@ export class AuthService {
         const sendMailDto = {
             user: { email: email, name: user.name },
             subject: "Forgot Password",
+            template: "./forgot-password",
             otp,
         }
         await this.emailService.sendEmail(sendMailDto);

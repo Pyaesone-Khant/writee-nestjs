@@ -31,7 +31,7 @@ export class BlogsController {
             const image = await this.awsService.uploadFile(file);
             createBlogDto.image = image;
         }
-        await this.blogsService.create(createBlogDto, userId);
+        return await this.blogsService.create(createBlogDto, userId);
     }
 
     @Public()

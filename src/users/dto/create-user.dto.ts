@@ -14,6 +14,9 @@ export class CreateUserDto {
     is_verified: boolean;
 
     @IsOptional()
+    is_active: boolean;
+
+    @IsOptional()
     @IsNumberString()
     otp: string;
 
