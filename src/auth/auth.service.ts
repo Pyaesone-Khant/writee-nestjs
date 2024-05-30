@@ -151,7 +151,7 @@ export class AuthService {
         if (user.otp !== otp) throw new BadRequestException("Invalid OTP!");
 
         if (+user.otp_expiration < Date.now()) throw new BadRequestException("OTP expired!");
-        await this.usersService.update(user.id, { otp: null, otp_expiration: null, is_verified: true, is_active: true});
+        await this.usersService.update(user.id, { otp: null, otp_expiration: null, is_verified: true, is_active: true });
 
         return { message: "Email verified successfully!" };
     }
@@ -190,6 +190,19 @@ export class AuthService {
         await this.emailService.sendEmail(sendMailDto);
 
         return { message: "OTP sent successfully!" };
+    }
+
+    async resetPassword(payload: { email: string, password: string }) {
+        const { email, password } = payload;
+        const user = await this.usersService.findByEmail(email);
+
+        if (!user) throw new NotFoundException("Email not found!");
+        if (!user.is_verified) throw new BadRequestException("Email not verified!");
+
+        const hashedPassword = await this.hashPassword(password);
+        await this.usersService.update(user.id, { password: hashedPassword });
+
+        return { message: "Password reset successfully!" };
     }
 
     async decodeToken(token: string): Promise<any> {
