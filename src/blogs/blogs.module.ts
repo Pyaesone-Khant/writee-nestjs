@@ -16,7 +16,7 @@ import { Blog } from "./entities/blog.entity";
         forwardRef(() => CategoriesModule),
         ReactionModule,
         CommentModule,
-        AuthModule // auth module is imported to use the AuthService in BlogResponseInterceptor
+        AuthModule // auth module is imported to use the AuthService in BlogResponseInterceptor,
     ],
     controllers: [BlogsController],
     providers: [BlogsService],

@@ -22,6 +22,8 @@ import { CommentModule } from './comment/comment.module';
 import { Comment } from './comment/entities/comment.entity';
 import { EmailModule } from './email/email.module';
 import { AuthGuard } from './guards/auth/auth.guard';
+import { Reaction } from './reaction/entities/reaction.entity';
+import { ReactionModule } from './reaction/reaction.module';
 import { Role } from './roles/entities/role.entity';
 import { RolesController } from './roles/roles.controller';
 import { RolesModule } from './roles/roles.module';
@@ -29,11 +31,12 @@ import { RolesService } from './roles/roles.service';
 import { Savedblog } from './savedblogs/entities/savedblog.entity';
 import { SavedblogsModule } from './savedblogs/savedblogs.module';
 import { SearchModule } from './search/search.module';
+import { SeederModule } from './seeder/seeder.module';
+import { SeederService } from './seeder/seeder.service';
 import { User } from './users/entities/user.entity';
 import { UsersController } from './users/users.controller';
 import { UsersModule } from './users/users.module';
 import { UsersService } from './users/users.service';
-import { ReactionModule } from './reaction/reaction.module';
 
 @Module({
     imports: [
@@ -48,7 +51,7 @@ import { ReactionModule } from './reaction/reaction.module';
         ConfigModule.forRoot({
             isGlobal: true
         }),
-        TypeOrmModule.forFeature([User, Blog, Category, Role, Comment, Savedblog]),
+        TypeOrmModule.forFeature([User, Blog, Category, Role, Comment, Savedblog, Reaction]),
         TypeOrmModule.forRootAsync({
             imports: [ConfigModule],
             useFactory: (configService: ConfigService) => ({
@@ -68,6 +71,7 @@ import { ReactionModule } from './reaction/reaction.module';
         AwsModule,
         SearchModule,
         ReactionModule,
+        SeederModule
     ],
     controllers: [
         AppController,
@@ -88,7 +92,8 @@ import { ReactionModule } from './reaction/reaction.module';
             provide: APP_GUARD,
             useClass: AuthGuard
         },
-        JwtStrategy
+        JwtStrategy,
+        SeederService
     ],
 })
 export class AppModule { }

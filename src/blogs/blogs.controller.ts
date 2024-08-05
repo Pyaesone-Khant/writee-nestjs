@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Patch, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Patch, Post, Query, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AwsService } from 'src/aws/aws.service';
 import { BlogResponseInterceptor } from 'src/blog-response.interceptor';
@@ -37,8 +37,8 @@ export class BlogsController {
     @Public()
     @UseInterceptors(BlogResponseInterceptor)
     @Get()
-    findAll() {
-        return this.blogsService.findAll();
+    findAll(@Query("page") page: number = 1, @Query("limit") limit: number = 3) {
+        return this.blogsService.findAll({ page, limit });
     }
 
     @Public()

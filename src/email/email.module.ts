@@ -2,7 +2,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { EjsAdapter } from "@nestjs-modules/mailer/dist/adapters/ejs.adapter";
 import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { join } from 'path';
+import * as path from "path";
 import { EmailService } from './email.service';
 
 @Global()
@@ -23,7 +23,7 @@ import { EmailService } from './email.service';
                     from: `Writee <${config.get("MAIL_USER")}>`
                 },
                 template: {
-                    dir: join("src", "templates"),
+                    dir: path.join("src", "templates"),
                     adapter: new EjsAdapter(),
                     options: {
                         strict: false,

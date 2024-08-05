@@ -32,8 +32,18 @@ export class BlogsService {
         return { message: "Blog created successfully!" };
     }
 
-    async findAll(): Promise<Blog[]> {
-        return await this.blogRepository.find({ relations: ['categories', 'user'], order: { id: "DESC" } })
+    async findAll({ page, limit }) {
+
+        const totalBlogs = await this.blogRepository.count();
+
+        const blogs = await this.blogRepository.find({ relations: ['categories', 'user'], order: { id: "DESC" }, take: limit, skip: (page - 1) * limit });
+
+        const totalPages = Math.ceil(totalBlogs / limit);
+
+        return {
+            blogs,
+            totalPages,
+        }
     }
 
     async findOne(id: number): Promise<Blog> {
