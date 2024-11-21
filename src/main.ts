@@ -1,11 +1,20 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
 
-    //   const {httpAdapter} = app.get(HttpAdapterHost)
-    //   app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
+    app.useGlobalPipes(
+        new ValidationPipe({
+            whitelist: true,
+            transform: true,
+            forbidNonWhitelisted: true,
+            transformOptions: {
+                enableImplicitConversion: true
+            }
+        })
+    );
 
     app.enableCors();
     app.setGlobalPrefix("api")

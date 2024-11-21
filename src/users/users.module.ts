@@ -1,12 +1,17 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
+import { PaginationModule } from 'src/common/pagination/pagination.module';
+import { FindUserByEmailProvider } from './providers/find-user-by-email.provider';
+import { UsersService } from './providers/users.service';
+import { User } from './user.entity';
 import { UsersController } from './users.controller';
-import { UsersService } from './users.service';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([User]),],
+    imports: [
+        TypeOrmModule.forFeature([User]),
+        PaginationModule
+    ],
     controllers: [UsersController],
-    providers: [UsersService],
+    providers: [UsersService, FindUserByEmailProvider],
 })
 export class UsersModule { }

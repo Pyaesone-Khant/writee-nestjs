@@ -1,0 +1,22 @@
+GET http://localhost:3000/api/categories
+
+
+GET http://localhost:3000/api/categories/1
+
+
+POST http://localhost:3000/api/categories
+Content-Type: application/json
+
+{
+    "name": "React JS",
+    "description": "JavaScript Library"
+}
+
+
+PATCH http://localhost:3000/api/categories/1
+Content-Type: application/json
+
+{
+    "name": "Category 1 updated",
+    "description": "Category 1 description updated"
+}
