@@ -1,6 +1,8 @@
 import { ConflictException, Injectable, NotFoundException, RequestTimeoutException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindDataBySlugProvider } from 'src/common/providers/find-data-by-slug.provider';
+import { Post } from 'src/posts/post.entity';
+import { FindPostsByCategoriesProvider } from 'src/posts/providers/find-posts-by-categories.provider';
 import { In, Repository } from 'typeorm';
 import { Category } from '../category.entity';
 import { CreateCategoryDto } from '../dto/create-category.dto';
@@ -13,7 +15,9 @@ export class CategoriesService {
         @InjectRepository(Category)
         private readonly categoryRepository: Repository<Category>,
 
-        private readonly findDataBySlugProvider: FindDataBySlugProvider
+        private readonly findDataBySlugProvider: FindDataBySlugProvider,
+
+        private readonly findPostsByCategoriesProvider: FindPostsByCategoriesProvider
     ) { }
 
 
@@ -94,14 +98,36 @@ export class CategoriesService {
         return { message: "Category deleted successfully!" }
     }
 
-    async findBySlug(slug: string): Promise<Category> {
-        const category: Category | undefined = await this.findDataBySlugProvider.findDataBySlug<Category>(slug, this.categoryRepository);
+    async findOneBySlug(slug: string): Promise<Category> {
+        let category: Category | undefined;
+
+        try {
+            category = await this.categoryRepository.findOne({
+                where: { slug }
+            })
+        } catch (error) {
+            throw new RequestTimeoutException()
+        }
 
         if (!category) {
             throw new NotFoundException("Category not found!")
         }
 
         return category;
+    }
+
+    async findPosts(ids: string): Promise<Post[]> {
+        const categoriesIds: number[] = ids.split(",").map(id => +id);
+
+        let posts: Post[] | [];
+
+        try {
+            posts = await this.findPostsByCategoriesProvider.findPostsByCategories(categoriesIds);
+        } catch (error) {
+            throw new RequestTimeoutException()
+        }
+
+        return posts;
     }
 
     async findMultipleCategories(ids: number[]): Promise<Category[]> {

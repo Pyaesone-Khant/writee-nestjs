@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationQueryDto } from 'src/common/pagination/dto/pagination-query.dto';
 import { Paginated } from 'src/common/pagination/interface/paginated.interface';
 import { PaginationProvider } from 'src/common/pagination/providers/pagination.provider';
+import { Post } from 'src/posts/post.entity';
+import { FindPostsByUserProvider } from 'src/posts/providers/find-posts-by-user.provider';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
@@ -22,6 +24,9 @@ export class UsersService {
         private readonly findUserByUsernameProvider: FindUserByUsernameProvider,
 
         private readonly paginationProvider: PaginationProvider,
+
+        private readonly findPostsByUserProvider: FindPostsByUserProvider,
+
     ) { }
 
     async findAll(paginationQueryDto: PaginationQueryDto): Promise<Paginated<User>> {
@@ -102,5 +107,9 @@ export class UsersService {
 
     async remove(id: number) {
         return await this.userRespository.delete(id);
+    }
+
+    async findPosts(id: number): Promise<Post[]> {
+        return await this.findPostsByUserProvider.findPostsByUser(id)
     }
 }

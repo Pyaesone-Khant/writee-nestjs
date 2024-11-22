@@ -1,16 +1,18 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PaginationModule } from 'src/common/pagination/pagination.module';
+import { PostsModule } from 'src/posts/posts.module';
 import { FindUserByEmailProvider } from './providers/find-user-by-email.provider';
+import { FindUserByUsernameProvider } from './providers/find-user-by-username.provider';
 import { UsersService } from './providers/users.service';
 import { User } from './user.entity';
 import { UsersController } from './users.controller';
-import { FindUserByUsernameProvider } from './providers/find-user-by-username.provider';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([User]),
-        PaginationModule
+        PaginationModule,
+        forwardRef(() => PostsModule)
     ],
     controllers: [UsersController],
     providers: [
