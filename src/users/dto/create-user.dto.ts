@@ -8,6 +8,12 @@ export class CreateUserDto {
     name: string;
 
     @IsString()
+    @IsNotEmpty()
+    @MinLength(5)
+    @Matches(/^[a-z0-9_]*$/, { message: 'Username can only contain small letters, numbers and underscores!' })
+    username: string;
+
+    @IsString()
     @IsEmail()
     @IsNotEmpty()
     email: string;

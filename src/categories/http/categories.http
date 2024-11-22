@@ -8,8 +8,8 @@ POST http://localhost:3000/api/categories
 Content-Type: application/json
 
 {
-    "name": "React JS",
-    "description": "JavaScript Library"
+    "name": "JavaScript",
+    "description": "JavaScript is the programming language of the Web."
 }
 
 

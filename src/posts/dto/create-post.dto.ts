@@ -1,4 +1,4 @@
-import { IsArray, IsInt, IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator";
+import { IsArray, IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator";
 
 export class CreatePostDto {
 
@@ -21,6 +21,10 @@ export class CreatePostDto {
     @IsOptional()
     @MinLength(10)
     description?: string;
+
+    @IsOptional()
+    @IsBoolean()
+    published?: boolean = true;
 
     @IsOptional()
     @IsString()

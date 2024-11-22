@@ -4,7 +4,11 @@ import { PaginationQueryDto } from 'src/common/pagination/dto/pagination-query.d
 import { Paginated } from 'src/common/pagination/interface/paginated.interface';
 import { PaginationProvider } from 'src/common/pagination/providers/pagination.provider';
 import { Repository } from 'typeorm';
+import { CreatePostDto } from '../dto/create-post.dto';
+import { UpdatePostDto } from '../dto/update-post.dto';
 import { Post } from '../post.entity';
+import { CreatePostProvider } from './create-post.provider';
+import { UpdatePostProvider } from './update-post.provider';
 
 @Injectable()
 export class PostsService {
@@ -14,6 +18,10 @@ export class PostsService {
         private readonly postRepository: Repository<Post>,
 
         private readonly paginationProvider: PaginationProvider,
+
+        private readonly createPostProvider: CreatePostProvider,
+
+        private readonly updatePostProvider: UpdatePostProvider
     ) { }
 
     async findAll(paginationQueryDto: PaginationQueryDto): Promise<Paginated<Post>> {
@@ -47,10 +55,45 @@ export class PostsService {
         return post;
     }
 
-    // async create(): Promise<Post> { }
+    async create(
+        createPostDto: CreatePostDto,
+        image?: Express.Multer.File
+    ): Promise<Post> {
+        return await this.createPostProvider.createPost(createPostDto, image)
+    }
 
-    // async update(): Promise<Post> { }
+    async update(id: number, updatePostDto: UpdatePostDto, image?: Express.Multer.File): Promise<Post> {
+        return await this.updatePostProvider.updatePost(id, updatePostDto, image)
+    }
 
-    // async remove(): Promise<object> { }
+    async remove(id: number): Promise<object> {
+        await this.findOne(id);
+
+        try {
+            await this.postRepository.delete(id)
+        } catch (error) {
+            throw new RequestTimeoutException()
+        }
+
+        return { success: true, message: "Post deleted successfully!" }
+    }
+
+    async findBySlug(slug: string): Promise<Post> {
+        let post: Post | undefined;
+
+        try {
+            post = await this.postRepository.findOne({
+                where: { slug }
+            })
+        } catch (error) {
+            throw new RequestTimeoutException()
+        }
+
+        if (!post) {
+            throw new NotFoundException("Post not found!")
+        }
+
+        return post;
+    }
 
 }

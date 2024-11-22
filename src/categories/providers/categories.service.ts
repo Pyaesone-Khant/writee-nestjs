@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, NotFoundException, RequestTimeoutException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindDataBySlugProvider } from 'src/common/providers/find-data-by-slug.provider';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Category } from '../category.entity';
 import { CreateCategoryDto } from '../dto/create-category.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
@@ -92,5 +92,31 @@ export class CategoriesService {
         }
 
         return { message: "Category deleted successfully!" }
+    }
+
+    async findBySlug(slug: string): Promise<Category> {
+        const category: Category | undefined = await this.findDataBySlugProvider.findDataBySlug<Category>(slug, this.categoryRepository);
+
+        if (!category) {
+            throw new NotFoundException("Category not found!")
+        }
+
+        return category;
+    }
+
+    async findMultipleCategories(ids: number[]): Promise<Category[]> {
+        let categories: Category[] | [];
+
+        try {
+            categories = await this.categoryRepository.find({
+                where: {
+                    id: In(ids)
+                }
+            })
+        } catch (error) {
+            throw new RequestTimeoutException()
+        }
+
+        return categories;
     }
 }

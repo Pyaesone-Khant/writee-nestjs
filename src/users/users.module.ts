@@ -5,6 +5,7 @@ import { FindUserByEmailProvider } from './providers/find-user-by-email.provider
 import { UsersService } from './providers/users.service';
 import { User } from './user.entity';
 import { UsersController } from './users.controller';
+import { FindUserByUsernameProvider } from './providers/find-user-by-username.provider';
 
 @Module({
     imports: [
@@ -12,6 +13,13 @@ import { UsersController } from './users.controller';
         PaginationModule
     ],
     controllers: [UsersController],
-    providers: [UsersService, FindUserByEmailProvider],
+    providers: [
+        UsersService,
+        FindUserByEmailProvider,
+        FindUserByUsernameProvider
+    ],
+    exports: [
+        UsersService,
+    ]
 })
 export class UsersModule { }

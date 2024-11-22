@@ -1,6 +1,6 @@
 import { Category } from "src/categories/category.entity";
 import { User } from "src/users/user.entity";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class Post {
@@ -9,34 +9,41 @@ export class Post {
     id: number;
 
     @Column({
+        type: "varchar",
         length: 255,
         nullable: false,
     })
     title: string;
 
     @Column({
+        type: "varchar",
         length: 255,
         nullable: false,
     })
     slug: string;
 
     @Column({
+        type: "varchar",
         nullable: false,
     })
     content: string;
 
     @Column({
+        type: "varchar",
+        length: 255,
         nullable: true,
     })
     description?: string;
 
     @Column({
+        type: "boolean",
         nullable: false,
-        default: false,
+        default: true,
     })
     published: boolean;
 
     @Column({
+        type: "varchar",
         nullable: true,
     })
     featuredImageUrl?: string;
@@ -57,6 +64,9 @@ export class Post {
             eager: true
         }
     )
+    @JoinTable({
+        name: "post_categories",
+    })
     categories: Category[]
 
     @CreateDateColumn()

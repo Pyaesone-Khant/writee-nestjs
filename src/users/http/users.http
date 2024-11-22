@@ -8,9 +8,10 @@ POST http://localhost:3000/api/users
 Content-Type: application/json
 
 {
-    "name": "Woodi",
-    "email": "woodi@gmail.com",
-    "password": "Woodi!2001"
+    "name": "Mario",
+    "email": "mario@gmail.com",
+    "password": "M@rio111111",
+    "username": "mario_m"
 }
 
 
@@ -18,6 +19,6 @@ PATCH http://localhost:3000/api/users/1
 Content-Type: application/json
 
 {
-    "name": "Category 1 updated",
-    "description": "Category 1 description updated"
+    "name": "Woodi",
+    "username": "woodi_wd"
 }

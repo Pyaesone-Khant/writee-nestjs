@@ -10,7 +10,7 @@ export class SlugChangerInterceptor implements NestInterceptor {
         const payload: string = request?.body?.name || request?.body?.title
 
         if (payload) {
-            request.body.slug = slugChanger(payload)
+            request.body.slug = slugChanger({ payload: payload })
         }
 
         return next.handle();

@@ -22,7 +22,7 @@ export class ParseAndValidateFormDataInterceptor<T extends ObjectLiteral> implem
         if (!stringifyBody) throw new BadRequestException("No data found in the request body!");
 
         const parsedBody = JSON.parse(stringifyBody);
-        parsedBody.slug = slugChanger(parsedBody?.title)
+        parsedBody.slug = slugChanger({ payload: parsedBody.title, addUUID: true })
         const data = plainToInstance(this.dto, parsedBody);
 
 
