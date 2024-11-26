@@ -1,4 +1,5 @@
 GET http://localhost:3000/api/posts?page=1&limit=10
+
 GET http://localhost:3000/api/posts/1
 
 GET http://localhost:3000/api/posts/slug/what-is-react-ecf975930771
@@ -6,4 +7,14 @@ GET http://localhost:3000/api/posts/slug/what-is-react-ecf975930771
 
 
 DELETE http://localhost:3000/api/posts/2
+
+
+POST http://localhost:3000/api/posts
+{
+    "title": "What is JavaScript?",
+    "content": "JavaScript is the Programming Language for the Web. JavaScript can update and change both HTML and CSS. JavaScript can calculate, manipulate and validate data.",
+    "description": "JavaScript is the Programming Language for the Web.",
+    "authorId": 1,
+    "categoryIds": [1]
+}
 

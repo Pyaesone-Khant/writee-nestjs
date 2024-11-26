@@ -4,7 +4,7 @@ import { PaginationQueryDto } from 'src/common/pagination/dto/pagination-query.d
 import { Paginated } from 'src/common/pagination/interface/paginated.interface';
 import { PaginationProvider } from 'src/common/pagination/providers/pagination.provider';
 import { Post } from 'src/posts/post.entity';
-import { FindPostsByUserProvider } from 'src/posts/providers/find-posts-by-user.provider';
+import { FindPostsByUserProvider } from 'src/users/providers/find-posts-by-user.provider';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
@@ -109,7 +109,7 @@ export class UsersService {
         return await this.userRespository.delete(id);
     }
 
-    async findPosts(id: number): Promise<Post[]> {
-        return await this.findPostsByUserProvider.findPostsByUser(id)
+    async findPosts(username: string): Promise<Post[]> {
+        return await this.findPostsByUserProvider.findPostsByUser(username)
     }
 }

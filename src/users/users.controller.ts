@@ -20,9 +20,9 @@ export class UsersController {
         return this.usersService.findAll(paginationQueryDto);
     }
 
-    @Get(':id/posts')
-    findPosts(@Param('id') id: number) {
-        return this.usersService.findPosts(+id);
+    @Get(':username/posts')
+    findPosts(@Param('username') username: string) {
+        return this.usersService.findPosts(username);
     }
 
     @Get(':id')

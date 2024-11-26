@@ -1,17 +1,17 @@
 GET http://localhost:3000/api/users
 
 
-GET http://localhost:3000/api/users/1/posts
+GET http://localhost:3000/api/users/woodi_wd/posts
 
 
 POST http://localhost:3000/api/users
 Content-Type: application/json
 
 {
-    "name": "Mario",
-    "email": "mario@gmail.com",
-    "password": "M@rio111111",
-    "username": "mario_m"
+    "name": "Woodi",
+    "email": "woodi@gmail.com",
+    "password": "Asdfghjkl!1",
+    "username": "woodi_wd"
 }
 
 

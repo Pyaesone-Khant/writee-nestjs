@@ -25,7 +25,7 @@ export class Category {
 
     @ManyToMany(
         () => Post,
-        (post) => post.id
+        (post) => post.categories
     )
     posts: Post[];
 }

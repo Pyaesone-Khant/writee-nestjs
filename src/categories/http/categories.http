@@ -4,12 +4,16 @@ GET http://localhost:3000/api/categories
 GET http://localhost:3000/api/categories/1
 
 
+
+GET http://localhost:3000/api/categories/javascript/posts
+
+
 POST http://localhost:3000/api/categories
 Content-Type: application/json
 
 {
-    "name": "JavaScript",
-    "description": "JavaScript is the programming language of the Web."
+    "name": "React JS",
+    "description": "JavaScript library for building user interfaces."
 }
 
 

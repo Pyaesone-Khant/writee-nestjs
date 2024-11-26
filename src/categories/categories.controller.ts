@@ -28,18 +28,11 @@ export class CategoriesController {
         return this.categoriesService.findOne(id);
     }
 
-    @Get('slug/:slug')
-    findOneBySlug(
+    @Get(':slug/posts')
+    findPosts(
         @Param('slug') slug: string
     ) {
-        return this.categoriesService.findOneBySlug(slug);
-    }
-
-    @Get(':ids/posts')
-    findPosts(
-        @Param('ids') ids: string
-    ) {
-        return this.categoriesService.findPosts(ids);
+        return this.categoriesService.findPosts(slug);
     }
 
     @UseInterceptors(SlugChangerInterceptor)

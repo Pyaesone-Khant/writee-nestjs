@@ -2,11 +2,11 @@ import { ConflictException, Injectable, NotFoundException, RequestTimeoutExcepti
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindDataBySlugProvider } from 'src/common/providers/find-data-by-slug.provider';
 import { Post } from 'src/posts/post.entity';
-import { FindPostsByCategoriesProvider } from 'src/posts/providers/find-posts-by-categories.provider';
 import { In, Repository } from 'typeorm';
 import { Category } from '../category.entity';
 import { CreateCategoryDto } from '../dto/create-category.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
+import { FindPostsByCategoryProvider } from './find-posts-by-category.provider';
 
 @Injectable()
 export class CategoriesService {
@@ -17,7 +17,7 @@ export class CategoriesService {
 
         private readonly findDataBySlugProvider: FindDataBySlugProvider,
 
-        private readonly findPostsByCategoriesProvider: FindPostsByCategoriesProvider
+        private readonly findPostsByCategoryProvider: FindPostsByCategoryProvider
     ) { }
 
 
@@ -116,18 +116,8 @@ export class CategoriesService {
         return category;
     }
 
-    async findPosts(ids: string): Promise<Post[]> {
-        const categoriesIds: number[] = ids.split(",").map(id => +id);
-
-        let posts: Post[] | [];
-
-        try {
-            posts = await this.findPostsByCategoriesProvider.findPostsByCategories(categoriesIds);
-        } catch (error) {
-            throw new RequestTimeoutException()
-        }
-
-        return posts;
+    async findPosts(slug: string): Promise<Post[]> {
+        return await this.findPostsByCategoryProvider.findPostsByCategory(slug)
     }
 
     async findMultipleCategories(ids: number[]): Promise<Category[]> {
