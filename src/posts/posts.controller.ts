@@ -1,5 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Auth } from 'src/auth/decorators/auth.decorator';
+import { AuthType } from 'src/auth/enums/auth-type.enum';
 import { PaginationQueryDto } from 'src/common/pagination/dto/pagination-query.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -14,12 +16,14 @@ export class PostsController {
     ) { }
 
     @Get()
+    @Auth(AuthType.None)
     findAll(
         @Query() paginationQueryDto: PaginationQueryDto
     ) {
         return this.postsService.findAll(paginationQueryDto);
     }
 
+    @Auth(AuthType.None)
     @Get(':id')
     findOne(
         @Param('id') id: number
@@ -27,6 +31,7 @@ export class PostsController {
         return this.postsService.findOne(id);
     }
 
+    @Auth(AuthType.None)
     @Get('slug/:slug')
     findBySlug(
         @Param('slug') slug: string

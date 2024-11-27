@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, RequestTimeoutException } from '@nestjs/common';
+import { Injectable, NotFoundException, RequestTimeoutException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationQueryDto } from 'src/common/pagination/dto/pagination-query.dto';
 import { Paginated } from 'src/common/pagination/interface/paginated.interface';
@@ -6,11 +6,14 @@ import { PaginationProvider } from 'src/common/pagination/providers/pagination.p
 import { Post } from 'src/posts/post.entity';
 import { FindPostsByUserProvider } from 'src/users/providers/find-posts-by-user.provider';
 import { Repository } from 'typeorm';
+import { ChangePasswordDto } from '../dto/change-password.dto';
+import { ChangeUsernameDto } from '../dto/change-username.dto';
 import { CreateUserDto } from '../dto/create-user.dto';
-import { UpdateUserDto } from '../dto/update-user.dto';
 import { User } from '../user.entity';
-import { FindUserByEmailProvider } from './find-user-by-email.provider';
-import { FindUserByUsernameProvider } from './find-user-by-username.provider';
+import { ChangeEmailProvider } from './change-email.provider';
+import { ChangePasswordProvider } from './change-password.provider';
+import { ChangeUsernameProvider } from './change-username.provider';
+import { CreateUserProvider } from './create-user.provider';
 
 @Injectable()
 export class UsersService {
@@ -19,14 +22,17 @@ export class UsersService {
         @InjectRepository(User)
         private readonly userRespository: Repository<User>,
 
-        private readonly findUserByEmailProvider: FindUserByEmailProvider,
-
-        private readonly findUserByUsernameProvider: FindUserByUsernameProvider,
+        private readonly createUserProvider: CreateUserProvider,
 
         private readonly paginationProvider: PaginationProvider,
 
         private readonly findPostsByUserProvider: FindPostsByUserProvider,
 
+        private readonly changeUsernameProvider: ChangeUsernameProvider,
+
+        private readonly changePasswordProvider: ChangePasswordProvider,
+
+        private readonly changeEmailProvider: ChangeEmailProvider
     ) { }
 
     async findAll(paginationQueryDto: PaginationQueryDto): Promise<Paginated<User>> {
@@ -41,27 +47,7 @@ export class UsersService {
     }
 
     async create(createUserDto: CreateUserDto): Promise<User> {
-        let newUser: User | undefined;
-
-        const userByEmail = await this.findUserByEmailProvider.findUserByEmail(createUserDto.email);
-        const userByUsername = await this.findUserByUsernameProvider.findUserByUsername(createUserDto.username);
-
-        if (userByEmail) {
-            throw new ConflictException('User with email already exists!')
-        }
-
-        if (userByUsername) {
-            throw new ConflictException('Username already exists!')
-        }
-
-        try {
-            newUser = this.userRespository.create(createUserDto)
-            await this.userRespository.save(newUser)
-        } catch (error) {
-            throw new RequestTimeoutException()
-        }
-
-        return newUser;
+        return await this.createUserProvider.create(createUserDto)
     }
 
     async findOne(id: number): Promise<User> {
@@ -78,31 +64,34 @@ export class UsersService {
         return user;
     }
 
-    async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
-
-        const user: User | undefined = await this.findOne(id);
-        const userByEmail: User | undefined = await this.findUserByEmailProvider.findUserByEmail(updateUserDto.email);
-        const userByUsername: User | undefined = await this.findUserByUsernameProvider.findUserByUsername(updateUserDto.username);
-
-        if (userByEmail && userByEmail.id !== id) {
-            throw new ConflictException('User with email already exists!')
-        }
-
-        if (userByUsername && userByUsername.id !== id) {
-            throw new ConflictException('User with username already exists!')
-        }
-
-        user.name = updateUserDto.name ?? user.name;
-        user.username = updateUserDto.username ?? user.username;
-        user.email = updateUserDto.email ?? user.email;
+    async findOneByUsername(username: string): Promise<User> {
+        let user: User | undefined;
 
         try {
-            await this.userRespository.save(user)
+            user = await this.userRespository.findOne({
+                where: { username }
+            })
         } catch (error) {
             throw new RequestTimeoutException();
         }
 
+        if (!user) {
+            throw new NotFoundException('User not found!');
+        }
+
         return user;
+    }
+
+    async changeUsername(userId: number, changeUsernameDto: ChangeUsernameDto): Promise<object> {
+        return await this.changeUsernameProvider.changeUsername(userId, changeUsernameDto)
+    }
+
+    async changePassword(userId: number, changePasswordDto: ChangePasswordDto): Promise<object> {
+        return await this.changePasswordProvider.changePassword(userId, changePasswordDto)
+    }
+
+    async changeEmail(userId: number, email: string): Promise<object> {
+        return await this.changeEmailProvider.changeEmail(userId, email)
     }
 
     async remove(id: number) {

@@ -1,14 +1,20 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
+import { AccessTokenGuard } from './auth/guards/access-token.guard';
+import { AuthenticationGuard } from './auth/guards/authentication.guard';
 import { CategoriesModule } from './categories/categories.module';
+import { PaginationModule } from './common/pagination/pagination.module';
 import { FindDataBySlugProvider } from './common/providers/find-data-by-slug.provider';
 import databaseConfig from './configs/database.config';
+import jwtConfig from './configs/jwt.config';
 import { PostsModule } from './posts/posts.module';
 import { UsersModule } from './users/users.module';
-import { PaginationModule } from './common/pagination/pagination.module';
 
 const ENV = process.env.NODE_ENV || 'development';
 @Global()
@@ -39,6 +45,9 @@ const ENV = process.env.NODE_ENV || 'development';
         }),
         PostsModule,
         PaginationModule,
+        AuthModule,
+        ConfigModule.forFeature(jwtConfig),
+        JwtModule.registerAsync(jwtConfig.asProvider())
     ],
     controllers: [
         AppController,
@@ -46,6 +55,11 @@ const ENV = process.env.NODE_ENV || 'development';
     providers: [
         AppService,
         FindDataBySlugProvider,
+        {
+            provide: APP_GUARD,
+            useClass: AuthenticationGuard
+        },
+        AccessTokenGuard
     ],
     exports: [
         FindDataBySlugProvider
