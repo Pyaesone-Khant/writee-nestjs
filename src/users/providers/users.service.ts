@@ -14,6 +14,7 @@ import { ChangeEmailProvider } from './change-email.provider';
 import { ChangePasswordProvider } from './change-password.provider';
 import { ChangeUsernameProvider } from './change-username.provider';
 import { CreateUserProvider } from './create-user.provider';
+import { FindUserByEmailProvider } from './find-user-by-email.provider';
 
 @Injectable()
 export class UsersService {
@@ -32,7 +33,9 @@ export class UsersService {
 
         private readonly changePasswordProvider: ChangePasswordProvider,
 
-        private readonly changeEmailProvider: ChangeEmailProvider
+        private readonly changeEmailProvider: ChangeEmailProvider,
+
+        private readonly findUserByEmailProvider: FindUserByEmailProvider
     ) { }
 
     async findAll(paginationQueryDto: PaginationQueryDto): Promise<Paginated<User>> {
@@ -100,5 +103,9 @@ export class UsersService {
 
     async findPosts(username: string): Promise<Post[]> {
         return await this.findPostsByUserProvider.findPostsByUser(username)
+    }
+
+    async findUserByEmail(email: string): Promise<User | undefined> {
+        return await this.findUserByEmailProvider.findUserByEmail(email)
     }
 }
