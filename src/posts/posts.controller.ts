@@ -1,10 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ActiveUser } from 'src/auth/decorators/active-user.decorator';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { AuthType } from 'src/auth/enums/auth-type.enum';
+import { ActiveUserData } from 'src/auth/interfaces/active-user-data.interface';
 import { PaginationQueryDto } from 'src/common/pagination/dto/pagination-query.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { PostOwnershipGuard } from './guards/post-ownership.guard';
 import { ParseAndValidateFormDataInterceptor } from './interceptors/parse-and-validate-form-data.interceptor';
 import { PostsService } from './providers/posts.service';
 
@@ -23,16 +26,16 @@ export class PostsController {
         return this.postsService.findAll(paginationQueryDto);
     }
 
-    @Auth(AuthType.None)
     @Get(':id')
+    @Auth(AuthType.None)
     findOne(
         @Param('id') id: number
     ) {
         return this.postsService.findOne(id);
     }
 
-    @Auth(AuthType.None)
     @Get('slug/:slug')
+    @Auth(AuthType.None)
     findBySlug(
         @Param('slug') slug: string
     ) {
@@ -46,9 +49,10 @@ export class PostsController {
     @Post()
     create(
         @Body() createPostDto: CreatePostDto,
-        @UploadedFile() image?: Express.Multer.File
+        @ActiveUser() user: ActiveUserData,
+        @UploadedFile() image?: Express.Multer.File,
     ) {
-        return this.postsService.create(createPostDto, image)
+        return this.postsService.create({ createPostDto, user, image });
     }
 
     @UseInterceptors(
@@ -56,17 +60,19 @@ export class PostsController {
         new ParseAndValidateFormDataInterceptor(UpdatePostDto),
     )
     @Put(':id')
+    @UseGuards(PostOwnershipGuard)
     update(
         @Param('id') id: number,
         @Body() updatePostDto: UpdatePostDto,
-        @UploadedFile() image?: Express.Multer.File
+        @UploadedFile() image?: Express.Multer.File,
     ) {
         return this.postsService.update(id, updatePostDto, image)
     }
 
     @Delete(':id')
+    @UseGuards(PostOwnershipGuard)
     remove(
-        @Param('id') id: number
+        @Param('id') id: number,
     ) {
         return this.postsService.remove(id);
     }

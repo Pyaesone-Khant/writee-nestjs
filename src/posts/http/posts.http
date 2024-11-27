@@ -7,6 +7,7 @@ GET http://localhost:3000/api/posts/slug/what-is-react-ecf975930771
 
 
 DELETE http://localhost:3000/api/posts/2
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsImVtYWlsIjoid29vZGlAZ21haWwuY29tIiwiaWF0IjoxNzMyNzI1NDYwLCJleHAiOjE3MzI3MjkwNjAsImF1ZCI6ImxvY2FsaG9zdCIsImlzcyI6ImxvY2FsaG9zdCJ9.UHzg8hxElGjR9Z4Y4cTfjjHnsQ9ygRNoNU8h6XjTKE8
 
 
 POST http://localhost:3000/api/posts

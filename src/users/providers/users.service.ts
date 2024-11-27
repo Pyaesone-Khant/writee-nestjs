@@ -21,7 +21,7 @@ export class UsersService {
 
     constructor(
         @InjectRepository(User)
-        private readonly userRespository: Repository<User>,
+        private readonly userRepository: Repository<User>,
 
         private readonly createUserProvider: CreateUserProvider,
 
@@ -42,7 +42,7 @@ export class UsersService {
         let users: Paginated<User> | [];
 
         try {
-            users = await this.paginationProvider.paginateQuery(paginationQueryDto, this.userRespository)
+            users = await this.paginationProvider.paginateQuery(paginationQueryDto, this.userRepository)
         } catch (error) {
             throw new RequestTimeoutException()
         }
@@ -58,7 +58,7 @@ export class UsersService {
         let user: User | undefined;
 
         try {
-            user = await this.userRespository.findOne({
+            user = await this.userRepository.findOne({
                 where: { id }
             })
         } catch (error) {
@@ -71,7 +71,7 @@ export class UsersService {
         let user: User | undefined;
 
         try {
-            user = await this.userRespository.findOne({
+            user = await this.userRepository.findOne({
                 where: { username }
             })
         } catch (error) {
@@ -98,7 +98,7 @@ export class UsersService {
     }
 
     async remove(id: number) {
-        return await this.userRespository.delete(id);
+        return await this.userRepository.delete(id);
     }
 
     async findPosts(username: string): Promise<Post[]> {

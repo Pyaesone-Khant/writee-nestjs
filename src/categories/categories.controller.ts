@@ -1,4 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseInterceptors } from '@nestjs/common';
+import { Auth } from 'src/auth/decorators/auth.decorator';
+import { AuthType } from 'src/auth/enums/auth-type.enum';
 import { SlugChangerInterceptor } from 'src/common/interceptors/slug-changer.interceptor';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -9,6 +11,7 @@ export class CategoriesController {
     constructor(private readonly categoriesService: CategoriesService) { }
 
     @Get()
+    @Auth(AuthType.None)
     findAll() {
         return this.categoriesService.findAll();
     }
@@ -29,6 +32,7 @@ export class CategoriesController {
     }
 
     @Get(':slug/posts')
+    @Auth(AuthType.None)
     findPosts(
         @Param('slug') slug: string
     ) {

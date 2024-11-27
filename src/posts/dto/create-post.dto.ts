@@ -32,10 +32,6 @@ export class CreatePostDto {
     featuredImageUrl?: string;
 
     @IsNotEmpty()
-    @IsInt()
-    authorId: number;
-
-    @IsNotEmpty()
     @IsArray()
     @IsInt({ each: true })
     categoryIds: number[];

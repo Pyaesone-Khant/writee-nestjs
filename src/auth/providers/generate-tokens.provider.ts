@@ -40,7 +40,7 @@ export class GenerateTokensProvider {
     ) {
         return await this.jwtService.signAsync(
             {
-                sug: userId,
+                sub: userId,
                 ...payload
             },
             {

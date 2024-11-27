@@ -1,31 +1,23 @@
 GET http://localhost:3000/api/users
 
 
-GET http://localhost:3000/api/users/woodi_wd/details
+GET http://localhost:3000/api/users/mario_m/details
 
-POST http://localhost:3000/api/users
+
+
+PATCH http://localhost:3000/api/users/change-username
 Content-Type: application/json
-
-{
-    "name": "Woodi",
-    "email": "woodi@gmail.com",
-    "password": "Asdfghjkl!1",
-    "username": "woodi_wd"
-}
-
-
-PATCH http://localhost:3000/api/users/1
-Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsImVtYWlsIjoid29vZGlAZ21haWwuY29tIiwiaWF0IjoxNzMyNzI0OTcwLCJleHAiOjE3MzI3Mjg1NzAsImF1ZCI6ImxvY2FsaG9zdCIsImlzcyI6ImxvY2FsaG9zdCJ9.6tCYhnwiP87hrg8vJv35hzW_Z1WXlzCB-t_qKN2qxos
 
 {
     "name": "Woodi",
     "username": "woodi_wd"
 }
 
-PATCH http://localhost:3000/api/users/1/change-password
+PATCH http://localhost:3000/api/users/change-password
 Content-Type: application/json
 
 {
-    "oldPassword": "Woodi!2001",
+    "oldPassword": "M@rio111111",
     "newPassword": "Asdfghjkl!1"
 }

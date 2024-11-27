@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, RequestTimeoutException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ActiveUserData } from 'src/auth/interfaces/active-user-data.interface';
 import { PaginationQueryDto } from 'src/common/pagination/dto/pagination-query.dto';
 import { Paginated } from 'src/common/pagination/interface/paginated.interface';
 import { PaginationProvider } from 'src/common/pagination/providers/pagination.provider';
@@ -56,10 +57,17 @@ export class PostsService {
     }
 
     async create(
-        createPostDto: CreatePostDto,
-        image?: Express.Multer.File
+        {
+            createPostDto,
+            user,
+            image
+        }: {
+            createPostDto: CreatePostDto,
+            user: ActiveUserData,
+            image?: Express.Multer.File,
+        }
     ): Promise<Post> {
-        return await this.createPostProvider.createPost(createPostDto, image)
+        return await this.createPostProvider.createPost({ createPostDto, user, image })
     }
 
     async update(id: number, updatePostDto: UpdatePostDto, image?: Express.Multer.File): Promise<Post> {

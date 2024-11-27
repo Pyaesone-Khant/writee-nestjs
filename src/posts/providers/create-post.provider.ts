@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, RequestTimeoutException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ActiveUserData } from 'src/auth/interfaces/active-user-data.interface';
 import { Category } from 'src/categories/category.entity';
 import { CategoriesService } from 'src/categories/providers/categories.service';
 import { UsersService } from 'src/users/providers/users.service';
@@ -19,14 +20,14 @@ export class CreatePostProvider {
         private readonly usersService: UsersService
     ) { }
 
-    async createPost(createPostDto: CreatePostDto, image?: Express.Multer.File): Promise<Post> {
+    async createPost({ createPostDto, user, image }: { createPostDto: CreatePostDto, user: ActiveUserData, image?: Express.Multer.File }): Promise<Post> {
         const categories: Category[] | [] = await this.categoriesService.findMultipleCategories(createPostDto.categoryIds);
 
         if (categories?.length !== createPostDto.categoryIds?.length) {
             throw new BadRequestException("Invalid category id recieved!")
         };
 
-        const author: User | undefined = await this.usersService.findOne(createPostDto.authorId);
+        const author: User | undefined = await this.usersService.findOne(user.sub);
 
         if (!author) {
             throw new BadRequestException("Invalid author id recieved!")
