@@ -43,6 +43,7 @@ export class User {
         default: false,
         nullable: false
     })
+    @Exclude()
     isVerified: boolean;
 
     @Column({

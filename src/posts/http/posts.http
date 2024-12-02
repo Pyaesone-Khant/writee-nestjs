@@ -4,6 +4,8 @@ GET http://localhost:3000/api/posts/1
 
 GET http://localhost:3000/api/posts/slug/what-is-react-ecf975930771
 
+GET http://localhost:3000/api/posts/react-js/posts
+
 
 
 DELETE http://localhost:3000/api/posts/2

@@ -1,12 +1,14 @@
-import { ConflictException, Injectable, NotFoundException, RequestTimeoutException } from '@nestjs/common';
+import { ConflictException, forwardRef, Inject, Injectable, NotFoundException, RequestTimeoutException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PaginationQueryDto } from 'src/common/pagination/dto/pagination-query.dto';
+import { Paginated } from 'src/common/pagination/interface/paginated.interface';
 import { FindDataBySlugProvider } from 'src/common/providers/find-data-by-slug.provider';
 import { Post } from 'src/posts/post.entity';
+import { PostsService } from 'src/posts/providers/posts.service';
 import { In, Repository } from 'typeorm';
 import { Category } from '../category.entity';
 import { CreateCategoryDto } from '../dto/create-category.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
-import { FindPostsByCategoryProvider } from './find-posts-by-category.provider';
 
 @Injectable()
 export class CategoriesService {
@@ -17,7 +19,8 @@ export class CategoriesService {
 
         private readonly findDataBySlugProvider: FindDataBySlugProvider,
 
-        private readonly findPostsByCategoryProvider: FindPostsByCategoryProvider
+        @Inject(forwardRef(() => PostsService))
+        private readonly postsService: PostsService
     ) { }
 
 
@@ -116,8 +119,8 @@ export class CategoriesService {
         return category;
     }
 
-    async findPosts(slug: string): Promise<Post[]> {
-        return await this.findPostsByCategoryProvider.findPostsByCategory(slug)
+    async findPosts(slug: string, paginationQueryDto: PaginationQueryDto): Promise<Paginated<Post>> {
+        return await this.postsService.findPostsByCategory(slug, paginationQueryDto)
     }
 
     async findMultipleCategories(ids: number[]): Promise<Category[]> {

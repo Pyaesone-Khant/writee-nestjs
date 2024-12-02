@@ -9,6 +9,7 @@ import { CreatePostDto } from '../dto/create-post.dto';
 import { UpdatePostDto } from '../dto/update-post.dto';
 import { Post } from '../post.entity';
 import { CreatePostProvider } from './create-post.provider';
+import { FindPostsByCategoryProvider } from './find-posts-by-category.provider';
 import { UpdatePostProvider } from './update-post.provider';
 
 @Injectable()
@@ -22,7 +23,9 @@ export class PostsService {
 
         private readonly createPostProvider: CreatePostProvider,
 
-        private readonly updatePostProvider: UpdatePostProvider
+        private readonly updatePostProvider: UpdatePostProvider,
+
+        private readonly findPostsByCategoryProvider: FindPostsByCategoryProvider,
     ) { }
 
     async findAll(paginationQueryDto: PaginationQueryDto): Promise<Paginated<Post>> {
@@ -102,6 +105,10 @@ export class PostsService {
         }
 
         return post;
+    }
+
+    async findPostsByCategory(category: string, paginationQueryDto: PaginationQueryDto): Promise<Paginated<Post>> {
+        return await this.findPostsByCategoryProvider.findPostsByCategory(category, paginationQueryDto)
     }
 
 }

@@ -8,7 +8,8 @@ export class PaginationProvider {
 
     public async paginateQuery<T extends ObjectLiteral>(
         paginationQuery: PaginationQueryDto,
-        repository: Repository<T>
+        repository: Repository<T>,
+        searchOptions?: object
     ): Promise<Paginated<T>> {
         const { page, limit } = paginationQuery;
 
@@ -17,6 +18,9 @@ export class PaginationProvider {
             skip: (page - 1) * limit,
             order: {
                 id: "DESC" as any
+            },
+            where: {
+                ...searchOptions
             }
         })
 
