@@ -14,7 +14,10 @@ export class PaginationProvider {
 
         const data = await repository.find({
             take: limit,
-            skip: (page - 1) * limit
+            skip: (page - 1) * limit,
+            order: {
+                id: "DESC" as any
+            }
         })
 
         const totalItems = await repository.count();

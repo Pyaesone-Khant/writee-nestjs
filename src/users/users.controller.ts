@@ -13,6 +13,7 @@ export class UsersController {
     constructor(private readonly usersService: UsersService) { }
 
     @Get()
+    @Auth(AuthType.None)
     findAll(
         @Query() paginationQueryDto: PaginationQueryDto
     ) {

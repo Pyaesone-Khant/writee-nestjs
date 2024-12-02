@@ -11,11 +11,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsImVtYWlsI
 
 
 POST http://localhost:3000/api/posts
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsImVtYWlsIjoibWFyaW9AZ21haWwuY29tIiwiaWF0IjoxNzMyNzY0Mzc1LCJleHAiOjE3MzI3Njc5NzUsImF1ZCI6ImxvY2FsaG9zdCIsImlzcyI6ImxvY2FsaG9zdCJ9.1_fTqFjYPIEYdnmqA3puD7rBoj9H7b3HPXws-Ji9dBU 
 {
     "title": "What is JavaScript?",
     "content": "JavaScript is the Programming Language for the Web. JavaScript can update and change both HTML and CSS. JavaScript can calculate, manipulate and validate data.",
     "description": "JavaScript is the Programming Language for the Web.",
-    "authorId": 1,
     "categoryIds": [1]
 }
 

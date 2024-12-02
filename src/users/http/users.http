@@ -1,6 +1,5 @@
 GET http://localhost:3000/api/users
-
-
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoid29vZGlAZ21haWwuY29tIiwiaWF0IjoxNzMyNzYzMzQxLCJleHAiOjE3MzI3NjY5NDEsImF1ZCI6ImxvY2FsaG9zdCIsImlzcyI6ImxvY2FsaG9zdCJ9.7Tkxpby5Si1eOOWH_FrSBZaBEEj0_YbBKaTjGhDVhrk
 GET http://localhost:3000/api/users/mario_m/details
 
 
@@ -14,10 +13,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsImVtYWlsI
     "username": "woodi_wd"
 }
 
-PATCH http://localhost:3000/api/users/change-password
+PATCH http://localhost:3000/api/users/2/change-password
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoid29vZGlAZ21haWwuY29tIiwiaWF0IjoxNzMyNzYzMzQxLCJleHAiOjE3MzI3NjY5NDEsImF1ZCI6ImxvY2FsaG9zdCIsImlzcyI6ImxvY2FsaG9zdCJ9.7Tkxpby5Si1eOOWH_FrSBZaBEEj0_YbBKaTjGhDVhrk
 
 {
     "oldPassword": "M@rio111111",
-    "newPassword": "Asdfghjkl!1"
+    "newPassword": "M@rio111111"
 }

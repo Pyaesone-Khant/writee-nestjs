@@ -25,10 +25,19 @@ export class CategoriesController {
     }
 
     @Get(':id')
+    @Auth(AuthType.None)
     findOne(
         @Param('id') id: number
     ) {
         return this.categoriesService.findOne(id);
+    }
+
+    @Get('slug/:slug')
+    @Auth(AuthType.None)
+    findOneBySlug(
+        @Param('slug') slug: string
+    ) {
+        return this.categoriesService.findOneBySlug(slug);
     }
 
     @Get(':slug/posts')

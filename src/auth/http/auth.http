@@ -1,8 +1,8 @@
 POST http://localhost:3000/api/auth/sign-in
 Content-Type: application/json
 {
-    "email": "woodi@gmail.com",
-    "password": "Asdfghjkl!1"
+    "email": "mario@gmail.com",
+    "password": "M@rio111111"
 }
 
 POST http://localhost:3000/api/auth/sign-up
