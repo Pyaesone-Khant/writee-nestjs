@@ -111,4 +111,21 @@ export class PostsService {
         return await this.findPostsByCategoryProvider.findPostsByCategory(category, paginationQueryDto)
     }
 
+    async search(q: string): Promise<Post[]> {
+        let posts: Post[] | [];
+
+        try {
+            posts = await this.postRepository.createQueryBuilder('post')
+                .leftJoinAndSelect('post.categories', 'categories')
+                .leftJoinAndSelect('post.author', 'author')
+                .where('post.title ILIKE :q', { q: `%${q}%` })
+                .orWhere('post.content ILIKE :q', { q: `%${q}%` })
+                .getMany()
+        } catch (error) {
+            throw new RequestTimeoutException()
+        }
+
+        return posts;
+    }
+
 }

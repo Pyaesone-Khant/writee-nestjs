@@ -138,4 +138,19 @@ export class CategoriesService {
 
         return categories;
     }
+
+    async search(q: string): Promise<Category[]> {
+        let categories: Category[] | [];
+
+        try {
+            categories = await this.categoryRepository
+                .createQueryBuilder("category")
+                .where("category.name ILIKE :q", { q: `%${q}%` })
+                .getMany()
+        } catch (error) {
+            throw new RequestTimeoutException()
+        }
+
+        return categories;
+    }
 }

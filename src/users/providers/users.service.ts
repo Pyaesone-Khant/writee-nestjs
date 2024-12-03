@@ -108,4 +108,19 @@ export class UsersService {
     async findUserByEmail(email: string): Promise<User | undefined> {
         return await this.findUserByEmailProvider.findUserByEmail(email)
     }
+
+    async search(q: string): Promise<User[]> {
+        let users: User[] | [];
+
+        try {
+            users = await this.userRepository.createQueryBuilder('user')
+                .where('user.username ILIKE :q', { q: `%${q}%` })
+                .orWhere('user.name ILIKE :q', { q: `%${q}%` })
+                .getMany()
+        } catch (error) {
+            throw new RequestTimeoutException()
+        }
+
+        return users;
+    }
 }

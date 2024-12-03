@@ -15,6 +15,7 @@ import databaseConfig from './configs/database.config';
 import jwtConfig from './configs/jwt.config';
 import { PostsModule } from './posts/posts.module';
 import { UsersModule } from './users/users.module';
+import { SearchModule } from './search/search.module';
 
 const ENV = process.env.NODE_ENV || 'development';
 @Global()
@@ -47,7 +48,8 @@ const ENV = process.env.NODE_ENV || 'development';
         PaginationModule,
         AuthModule,
         ConfigModule.forFeature(jwtConfig),
-        JwtModule.registerAsync(jwtConfig.asProvider())
+        JwtModule.registerAsync(jwtConfig.asProvider()),
+        SearchModule
     ],
     controllers: [
         AppController,
