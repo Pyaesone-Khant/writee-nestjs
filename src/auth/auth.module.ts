@@ -6,8 +6,9 @@ import { UsersModule } from 'src/users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './providers/auth.service';
 import { BcryptProvider } from './providers/bcrypt.provider';
-import { HashingProvider } from './providers/hashing.provider';
 import { GenerateTokensProvider } from './providers/generate-tokens.provider';
+import { HashingProvider } from './providers/hashing.provider';
+import { OtpProvider } from './providers/otp.provider';
 import { SignInProvider } from './providers/sign-in.provider';
 
 @Module({
@@ -19,7 +20,8 @@ import { SignInProvider } from './providers/sign-in.provider';
             useClass: BcryptProvider
         },
         GenerateTokensProvider,
-        SignInProvider
+        SignInProvider,
+        OtpProvider,
     ],
     imports: [
         forwardRef(() => UsersModule),
@@ -28,7 +30,8 @@ import { SignInProvider } from './providers/sign-in.provider';
     ],
     exports: [
         AuthService,
-        HashingProvider
+        HashingProvider,
+        OtpProvider,
     ]
 })
 export class AuthModule { }

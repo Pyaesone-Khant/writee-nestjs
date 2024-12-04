@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        p{
+            font-size: 15px;
+            color: #666;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body style="font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">
+    <div style="font-size: 15px; color: #666; background: #fff; max-width: 600px; margin: 12px auto;">
+        <h2 style="background: #0270dd; padding: 20px; color: #fff; font-size: 24px; font-weight: 600;">Email Verification Code</h2>
+        <div style="padding: 20px; border: 1px solid rgba(0, 0, 0, 0.3);">
+            <h3 style="color: #333; margin-bottom: 12px;">Hi <%= name %>, </h3>
+            <p>To finish setting up your <span style="color: #333;font-weight: 500;">Writee</span> account, we just need to make sure this email address is yours.</p>
+            <p>To verify your email address, please use the OTP code below:</p>
+            <p style="color: #333; font-size: 20px; font-weight: bold; text-align: center;"><%= otp %></p>
+            <p>If you didn't request this OTP, you can safely ignore this email. Someone else might have typed your email address by mistake.</p>
+            <div style="color: #333;">
+                <p style="margin-bottom: 8px; display: block;">Thanks,</p>
+                <p style="color: #333;font-weight: 500; margin: 0; display: block;">Writee Team</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

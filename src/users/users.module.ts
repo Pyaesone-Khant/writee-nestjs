@@ -7,8 +7,6 @@ import { ChangePasswordProvider } from './providers/change-password.provider';
 import { ChangeUsernameProvider } from './providers/change-username.provider';
 import { CreateUserProvider } from './providers/create-user.provider';
 import { FindPostsByUserProvider } from './providers/find-posts-by-user.provider';
-import { FindUserByEmailProvider } from './providers/find-user-by-email.provider';
-import { FindUserByUsernameProvider } from './providers/find-user-by-username.provider';
 import { UsersService } from './providers/users.service';
 import { User } from './user.entity';
 import { UsersController } from './users.controller';
@@ -22,13 +20,11 @@ import { UsersController } from './users.controller';
     controllers: [UsersController],
     providers: [
         UsersService,
-        FindUserByEmailProvider,
-        FindUserByUsernameProvider,
         FindPostsByUserProvider,
         CreateUserProvider,
         ChangePasswordProvider,
         ChangeEmailProvider,
-        ChangeUsernameProvider
+        ChangeUsernameProvider,
     ],
     exports: [
         UsersService,

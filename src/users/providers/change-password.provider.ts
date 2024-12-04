@@ -20,15 +20,38 @@ export class ChangePasswordProvider {
             where: { id: userId }
         });
 
-        // if (this.hashingProvider.comparePassword(changePasswordDto.oldPassword, user.password)) {
-        //     throw new BadRequestException('Old password is incorrect!');
-        // }
+        if (this.hashingProvider.comparePassword(changePasswordDto.oldPassword, user.password)) {
+            throw new BadRequestException('Old password is incorrect!');
+        }
 
         if (changePasswordDto.oldPassword !== user.password) {
             throw new BadRequestException('Old password is incorrect!');
         }
 
         user.password = await this.hashingProvider.hashPassword(changePasswordDto.newPassword);
+
+        try {
+            await this.userRepository.save(user);
+        } catch (error) {
+            throw new RequestTimeoutException('Password could not be updated!');
+        }
+
+        return {
+            success: true,
+            message: 'Password updated successfully!',
+        };
+    }
+
+    async resetPassword(email: string, password: string): Promise<object> {
+        const user: User | undefined = await this.userRepository.findOne({
+            where: { email }
+        });
+
+        if (!user) {
+            throw new BadRequestException('User not found!');
+        }
+
+        user.password = await this.hashingProvider.hashPassword(password);
 
         try {
             await this.userRepository.save(user);

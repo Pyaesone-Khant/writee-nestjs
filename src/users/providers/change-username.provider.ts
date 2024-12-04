@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ChangeUsernameDto } from '../dto/change-username.dto';
 import { User } from '../user.entity';
-import { FindUserByUsernameProvider } from './find-user-by-username.provider';
 
 @Injectable()
 export class ChangeUsernameProvider {
@@ -12,7 +11,6 @@ export class ChangeUsernameProvider {
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
 
-        private readonly findUserByUsernameProvider: FindUserByUsernameProvider,
     ) { }
 
     async changeUsername(userId: number, changeUsernameDto: ChangeUsernameDto): Promise<object> {
@@ -20,7 +18,11 @@ export class ChangeUsernameProvider {
             where: { id: userId }
         });
 
-        const userByUsername = await this.findUserByUsernameProvider.findUserByUsername(changeUsernameDto.username);
+        const userByUsername = await this.userRepository.findOne({
+            where: {
+                username: changeUsernameDto.username
+            }
+        });
 
         if (userByUsername) {
             throw new ConflictException('Username already exists!');

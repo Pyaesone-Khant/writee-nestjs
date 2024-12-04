@@ -11,11 +11,13 @@ import { AuthenticationGuard } from './auth/guards/authentication.guard';
 import { CategoriesModule } from './categories/categories.module';
 import { PaginationModule } from './common/pagination/pagination.module';
 import { FindDataBySlugProvider } from './common/providers/find-data-by-slug.provider';
+import appConfig from './configs/app.config';
 import databaseConfig from './configs/database.config';
 import jwtConfig from './configs/jwt.config';
+import { MailModule } from './mail/mail.module';
 import { PostsModule } from './posts/posts.module';
-import { UsersModule } from './users/users.module';
 import { SearchModule } from './search/search.module';
+import { UsersModule } from './users/users.module';
 
 const ENV = process.env.NODE_ENV || 'development';
 @Global()
@@ -27,7 +29,8 @@ const ENV = process.env.NODE_ENV || 'development';
             isGlobal: true,
             envFilePath: !ENV ? '.env' : `.env.${ENV}`,
             load: [
-                databaseConfig
+                databaseConfig,
+                appConfig
             ],
         }),
         TypeOrmModule.forRootAsync({
@@ -49,7 +52,8 @@ const ENV = process.env.NODE_ENV || 'development';
         AuthModule,
         ConfigModule.forFeature(jwtConfig),
         JwtModule.registerAsync(jwtConfig.asProvider()),
-        SearchModule
+        SearchModule,
+        MailModule
     ],
     controllers: [
         AppController,

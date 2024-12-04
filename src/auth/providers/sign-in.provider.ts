@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import jwtConfig from 'src/configs/jwt.config';
 import { UsersService } from 'src/users/providers/users.service';
@@ -26,7 +26,11 @@ export class SignInProvider {
         const user: User | undefined = await this.usersService.findUserByEmail(signInDto.email);
 
         if (!user) {
-            throw new NotFoundException()
+            throw new BadRequestException("Email or password is incorrect!");
+        }
+
+        if (user && !user.isVerified) {
+            throw new BadRequestException("Please verify your email address!");
         }
 
         const isPasswordValid: boolean = await this.hashingProvider.comparePassword(signInDto.password, user.password);

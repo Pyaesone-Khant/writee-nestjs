@@ -22,4 +22,24 @@ export class AuthController {
     signUp(@Body() createUserDto: CreateUserDto) {
         return this.authService.signUp(createUserDto)
     }
+
+    @Post('/forgot-password')
+    forgotPassword(@Body() { email }: { email: string }) {
+        return this.authService.requestOtp(email)
+    }
+
+    @Post('/verify-otp')
+    verifyOTP(@Body() { email, otp }: { email: string, otp: string }) {
+        return this.authService.verifyOTP(email, otp)
+    }
+
+    @Post('/request-otp')
+    requestOTP(@Body() { email }: { email: string }) {
+        return this.authService.requestOtp(email)
+    }
+
+    @Post('/reset-password')
+    resetPassword(@Body() { email, password }: { email: string, password: string }) {
+        return this.authService.resetPassword(email, password)
+    }
 }

@@ -2,7 +2,6 @@ import { ConflictException, Injectable, RequestTimeoutException } from '@nestjs/
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../user.entity';
-import { FindUserByEmailProvider } from './find-user-by-email.provider';
 
 @Injectable()
 export class ChangeEmailProvider {
@@ -10,13 +9,13 @@ export class ChangeEmailProvider {
     constructor(
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
-
-        private readonly findUserByEmailProvider: FindUserByEmailProvider,
     ) { }
 
     async changeEmail(userId: number, email: string): Promise<object> {
 
-        const userByEmail: User | undefined = await this.findUserByEmailProvider.findUserByEmail(email);
+        const userByEmail: User | undefined = await this.userRepository.findOne({
+            where: { email }
+        })
 
         if (userByEmail) {
             throw new ConflictException('Email already exists!');
