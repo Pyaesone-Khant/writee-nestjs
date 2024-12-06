@@ -4,6 +4,7 @@ import { PostsModule } from 'src/posts/posts.module';
 import { CategoriesController } from './categories.controller';
 import { Category } from './category.entity';
 import { CategoriesService } from './providers/categories.service';
+import { FindPopularCategoriesProvider } from './providers/find-popular-categories.provider';
 
 @Module({
     imports: [
@@ -11,7 +12,7 @@ import { CategoriesService } from './providers/categories.service';
         forwardRef(() => PostsModule)
     ],
     controllers: [CategoriesController],
-    providers: [CategoriesService],
+    providers: [CategoriesService, FindPopularCategoriesProvider],
     exports: [CategoriesService]
 })
 export class CategoriesModule { }

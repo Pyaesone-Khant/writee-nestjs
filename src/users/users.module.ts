@@ -10,6 +10,7 @@ import { FindPostsByUserProvider } from './providers/find-posts-by-user.provider
 import { UsersService } from './providers/users.service';
 import { User } from './user.entity';
 import { UsersController } from './users.controller';
+import { FindPopularAuthorsProvider } from './providers/find-popular-authors.provider';
 
 @Module({
     imports: [
@@ -25,6 +26,7 @@ import { UsersController } from './users.controller';
         ChangePasswordProvider,
         ChangeEmailProvider,
         ChangeUsernameProvider,
+        FindPopularAuthorsProvider,
     ],
     exports: [
         UsersService,

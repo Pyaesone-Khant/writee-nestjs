@@ -28,4 +28,6 @@ export class Category {
         (post) => post.categories
     )
     posts: Post[];
+
+    postCount?: number;
 }

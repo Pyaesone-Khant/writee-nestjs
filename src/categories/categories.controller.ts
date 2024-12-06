@@ -25,6 +25,12 @@ export class CategoriesController {
         return this.categoriesService.create(createCategoryDto);
     }
 
+    @Get('popular')
+    @Auth(AuthType.None)
+    findPopularCategories() {
+        return this.categoriesService.findPopularCategories();
+    }
+
     @Get(':id')
     @Auth(AuthType.None)
     findOne(

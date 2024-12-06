@@ -9,6 +9,7 @@ import { In, Repository } from 'typeorm';
 import { Category } from '../category.entity';
 import { CreateCategoryDto } from '../dto/create-category.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
+import { FindPopularCategoriesProvider } from './find-popular-categories.provider';
 
 @Injectable()
 export class CategoriesService {
@@ -20,7 +21,9 @@ export class CategoriesService {
         private readonly findDataBySlugProvider: FindDataBySlugProvider,
 
         @Inject(forwardRef(() => PostsService))
-        private readonly postsService: PostsService
+        private readonly postsService: PostsService,
+
+        private readonly findPopularCategoriesProvider: FindPopularCategoriesProvider
     ) { }
 
 
@@ -152,5 +155,9 @@ export class CategoriesService {
         }
 
         return categories;
+    }
+
+    async findPopularCategories(): Promise<Category[]> {
+        return await this.findPopularCategoriesProvider.findPopularCategories()
     }
 }

@@ -15,6 +15,7 @@ import { ChangeEmailProvider } from './change-email.provider';
 import { ChangePasswordProvider } from './change-password.provider';
 import { ChangeUsernameProvider } from './change-username.provider';
 import { CreateUserProvider } from './create-user.provider';
+import { FindPopularAuthorsProvider } from './find-popular-authors.provider';
 
 @Injectable()
 export class UsersService {
@@ -35,17 +36,20 @@ export class UsersService {
 
         private readonly changeEmailProvider: ChangeEmailProvider,
 
+        private readonly findPopularAuthorsProvider: FindPopularAuthorsProvider
+
     ) { }
 
     async findAll(paginationQueryDto: PaginationQueryDto): Promise<Paginated<User>> {
-        let users: Paginated<User> | [];
+        let result: Paginated<User> | [];
 
         try {
-            users = await this.paginationProvider.paginateQuery(paginationQueryDto, this.userRepository)
+            result = await this.paginationProvider.paginateQuery(paginationQueryDto, this.userRepository)
         } catch (error) {
             throw new RequestTimeoutException()
         }
-        return users;
+
+        return result;
     }
 
     async create(createUserDto: CreateUserDto): Promise<object> {
@@ -72,9 +76,19 @@ export class UsersService {
     }
 
     async findOneByUsername(username: string): Promise<User> {
-        const user: User | undefined = await this.userRepository.findOne({
-            where: { username }
-        });
+
+        let user: User | undefined;
+
+        try {
+            user = await this.userRepository
+                .createQueryBuilder('user')
+                .where('user.username = :username', { username })
+                .loadRelationCountAndMap('user.postCount', 'user.posts')
+                .getOne()
+        } catch (error) {
+            throw new RequestTimeoutException()
+        }
+
         if (!user) {
             throw new NotFoundException('User not found!');
         }
@@ -144,5 +158,9 @@ export class UsersService {
         }
 
         return users;
+    }
+
+    async findPopularAuthors(): Promise<User[]> {
+        return await this.findPopularAuthorsProvider.findPopularAuthors();
     }
 }

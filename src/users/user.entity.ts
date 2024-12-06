@@ -63,4 +63,6 @@ export class User {
         (post) => post.author
     )
     posts: Post[];
+
+    postCount?: number;
 }

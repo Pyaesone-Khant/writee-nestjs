@@ -26,6 +26,12 @@ export class UsersController {
         return this.usersService.findPosts(username);
     }
 
+    @Get('/popular-authors')
+    @Auth(AuthType.None)
+    findPopularAuthors() {
+        return this.usersService.findPopularAuthors();
+    }
+
     @Get(':id')
     @Auth(AuthType.None)
     findOne(@Param('id') id: number) {
