@@ -12,10 +12,10 @@ GET http://localhost:3000/api/categories/popular
 
 POST http://localhost:3000/api/categories
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoicHlhZXBza0BnbWFpbC5jb20iLCJpYXQiOjE3MzM2Njc0MDUsImV4cCI6MTczMzY3MTAwNSwiYXVkIjoibG9jYWxob3N0IiwiaXNzIjoibG9jYWxob3N0In0.U-gN9oK93BCfvZUGlFszRlALbW1rA6_MuAmgb60AsB0
 
 {
-    "name": "React JS",
-    "description": "JavaScript library for building user interfaces."
+    "name": "Technology"
 }
 
 

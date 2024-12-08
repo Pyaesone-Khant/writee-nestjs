@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AUTH_TYPE_KEY } from '../constants/auth.constants';
 import { AuthType } from '../enums/auth-type.enum';
@@ -30,7 +30,7 @@ export class AuthenticationGuard implements CanActivate {
 
         const guards = authTypes.map(type => this.authTypeGuardMap[type]).flat();
 
-        const error = new UnauthorizedException();
+        const error = new BadRequestException("Invalid token!");
 
         for (const gu of guards) {
             const canActivate = await Promise.resolve(

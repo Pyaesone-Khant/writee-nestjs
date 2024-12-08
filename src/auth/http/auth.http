@@ -20,7 +20,7 @@ Content-Type: application/json
 
 {
     "email": "pyaepsk@gmail.com",
-    "otp": "413998"
+    "otp": "222203"
 }
 
 POST http://localhost:3000/api/auth/request-otp

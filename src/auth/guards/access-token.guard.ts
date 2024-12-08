@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
@@ -24,7 +24,7 @@ export class AccessTokenGuard implements CanActivate {
         const token = this.extractToken(request);
 
         if (!token) {
-            throw new UnauthorizedException("Token not found!");
+            throw new BadRequestException("Token not found!");
         }
 
         try {
@@ -32,7 +32,7 @@ export class AccessTokenGuard implements CanActivate {
 
             request[REQUEST_USER_KEY] = payload
         } catch (error) {
-            throw new UnauthorizedException();
+            throw new BadRequestException('Invalid token!');
         }
         return true;
     }
