@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ActiveUser } from 'src/auth/decorators/active-user.decorator';
 import { Auth } from 'src/auth/decorators/auth.decorator';
@@ -68,6 +68,15 @@ export class PostsController {
     ) {
         return this.postsService.update(id, updatePostDto, image)
     }
+
+    @Patch(':id/publish')
+    @UseGuards(PostOwnershipGuard)
+    publish(
+        @Param('id') id: number
+    ) {
+        return this.postsService.publish(id);
+    }
+
 
     @Delete(':id')
     @UseGuards(PostOwnershipGuard)

@@ -6,11 +6,12 @@ GET http://localhost:3000/api/posts/slug/what-is-react-ecf975930771
 
 GET http://localhost:3000/api/posts/react-js/posts
 
+PATCH http://localhost:3000/api/posts/5/publish
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoicHlhZXBza0BnbWFpbC5jb20iLCJpYXQiOjE3MzM3NTkzODMsImV4cCI6MTczMzc2Mjk4MywiYXVkIjoibG9jYWxob3N0IiwiaXNzIjoibG9jYWxob3N0In0.nGi3Z9sJCOAlIBd_wrO-OIXiWSgOMOy_RCIe8fhZPIw
 
 
 DELETE http://localhost:3000/api/posts/2
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsImVtYWlsIjoid29vZGlAZ21haWwuY29tIiwiaWF0IjoxNzMyNzI1NDYwLCJleHAiOjE3MzI3MjkwNjAsImF1ZCI6ImxvY2FsaG9zdCIsImlzcyI6ImxvY2FsaG9zdCJ9.UHzg8hxElGjR9Z4Y4cTfjjHnsQ9ygRNoNU8h6XjTKE8
-
 
 POST http://localhost:3000/api/posts
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsImVtYWlsIjoibWFyaW9AZ21haWwuY29tIiwiaWF0IjoxNzMyNzY0Mzc1LCJleHAiOjE3MzI3Njc5NzUsImF1ZCI6ImxvY2FsaG9zdCIsImlzcyI6ImxvY2FsaG9zdCJ9.1_fTqFjYPIEYdnmqA3puD7rBoj9H7b3HPXws-Ji9dBU 

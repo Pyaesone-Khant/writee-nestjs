@@ -29,15 +29,36 @@ export class PostsService {
     ) { }
 
     async findAll(paginationQueryDto: PaginationQueryDto): Promise<Paginated<Post>> {
-        let posts: Paginated<Post> | [];
+        let posts: Post[] | [];
+        let totalItems: number;
+
+        const { page, limit } = paginationQueryDto;
 
         try {
-            posts = await this.paginationProvider.paginateQuery(paginationQueryDto, this.postRepository)
+            posts = await this.postRepository.find({
+                where: {
+                    published: true
+                },
+                order: {
+                    createdAt: 'DESC'
+                },
+                relations: ['categories', 'author'],
+                take: limit,
+                skip: limit * (page - 1)
+            })
+            totalItems = await this.postRepository.count({ where: { published: true } });
         } catch (error) {
             throw new RequestTimeoutException();
         }
 
-        return posts;
+        const data = posts;
+        const meta = {
+            totalItems,
+            itemsPerPage: limit,
+            totalPages: Math.ceil(totalItems / limit)
+        }
+
+        return { data, meta }
     }
 
     async findOne(id: number): Promise<Post> {
@@ -126,6 +147,33 @@ export class PostsService {
         }
 
         return posts;
+    }
+
+    // used as a toggle to publish and unpublish a post
+    async publish(id: number): Promise<object> {
+        let post: Post;
+
+        try {
+            post = await this.postRepository.findOne({
+                where: { id }
+            })
+        } catch (error) {
+            throw new RequestTimeoutException()
+        }
+
+        if (!post) {
+            throw new NotFoundException();
+        }
+
+        post.published = !post.published
+
+        try {
+            await this.postRepository.save(post)
+        } catch (error) {
+            throw new RequestTimeoutException()
+        }
+
+        return { success: true, message: `Post ${post.published ? 'published' : 'unpublished'} successfully!` };
     }
 
 }
