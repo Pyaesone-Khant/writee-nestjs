@@ -62,14 +62,11 @@ export class UsersService {
 
         try {
             user = await this.userRepository.findOne({
-                where: { id }
+                where: { id },
+                relations: ['savedPosts', 'savedPosts.post']
             })
         } catch (error) {
             throw new RequestTimeoutException();
-        }
-
-        if (!user) {
-            throw new NotFoundException('User not found!');
         }
 
         return user;

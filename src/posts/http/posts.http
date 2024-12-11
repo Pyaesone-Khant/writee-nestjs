@@ -1,8 +1,10 @@
 GET http://localhost:3000/api/posts?page=1&limit=10
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoicHlhZXBza0BnbWFpbC5jb20iLCJpYXQiOjE3MzM5Mjc0NTAsImV4cCI6MTczMzkzMTA1MCwiYXVkIjoibG9jYWxob3N0IiwiaXNzIjoibG9jYWxob3N0In0.mM8x5zdYMZsLd6rT_oUwOJCQ0R_oiXMBz02SpmZsJWc
 
 GET http://localhost:3000/api/posts/1
-
-GET http://localhost:3000/api/posts/slug/what-is-react-ecf975930771
+  
+GET http://localhost:3000/api/posts/slug/what-is-javascript-fdcb855b6a8b
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoicHlhZXBza0BnbWFpbC5jb20iLCJpYXQiOjE3MzM5Mjc0NTAsImV4cCI6MTczMzkzMTA1MCwiYXVkIjoibG9jYWxob3N0IiwiaXNzIjoibG9jYWxob3N0In0.mM8x5zdYMZsLd6rT_oUwOJCQ0R_oiXMBz02SpmZsJWc
 
 GET http://localhost:3000/api/posts/react-js/posts
 

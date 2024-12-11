@@ -3,7 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ActiveUserData } from 'src/auth/interfaces/active-user-data.interface';
 import { PaginationQueryDto } from 'src/common/pagination/dto/pagination-query.dto';
 import { Paginated } from 'src/common/pagination/interface/paginated.interface';
-import { PaginationProvider } from 'src/common/pagination/providers/pagination.provider';
+import { UsersService } from 'src/users/providers/users.service';
+import { User } from 'src/users/user.entity';
 import { Repository } from 'typeorm';
 import { CreatePostDto } from '../dto/create-post.dto';
 import { UpdatePostDto } from '../dto/update-post.dto';
@@ -19,20 +20,22 @@ export class PostsService {
         @InjectRepository(Post)
         private readonly postRepository: Repository<Post>,
 
-        private readonly paginationProvider: PaginationProvider,
-
         private readonly createPostProvider: CreatePostProvider,
 
         private readonly updatePostProvider: UpdatePostProvider,
 
         private readonly findPostsByCategoryProvider: FindPostsByCategoryProvider,
+
+        private readonly usersService: UsersService,
     ) { }
 
-    async findAll(paginationQueryDto: PaginationQueryDto): Promise<Paginated<Post>> {
+    async findAll(paginationQueryDto: PaginationQueryDto, activeUser?: ActiveUserData): Promise<Paginated<Post>> {
         let posts: Post[] | [];
         let totalItems: number;
 
         const { page, limit } = paginationQueryDto;
+
+        const user: User | undefined = activeUser && await this.usersService.findOne(activeUser.sub);
 
         try {
             posts = await this.postRepository.find({
@@ -51,7 +54,16 @@ export class PostsService {
             throw new RequestTimeoutException();
         }
 
-        const data = posts;
+        const data = posts?.map(post => {
+            if (user) {
+                const isSaved = user.savedPosts.some(savedPost => savedPost.post.id === post.id);
+                post.isSaved = isSaved;
+            } else {
+                post.isSaved = false;
+            }
+            return post;
+        });
+
         const meta = {
             totalItems,
             itemsPerPage: limit,
@@ -74,7 +86,7 @@ export class PostsService {
         }
 
         if (!post) {
-            throw new NotFoundException();
+            throw new NotFoundException("Post not found!");
         }
 
         return post;
@@ -110,8 +122,10 @@ export class PostsService {
         return { success: true, message: "Post deleted successfully!" }
     }
 
-    async findBySlug(slug: string): Promise<Post> {
+    async findBySlug(slug: string, activeUser?: ActiveUserData): Promise<Post> {
         let post: Post | undefined;
+
+        const user = activeUser && await this.usersService.findOne(activeUser.sub)
 
         try {
             post = await this.postRepository.findOne({
@@ -123,6 +137,13 @@ export class PostsService {
 
         if (!post) {
             throw new NotFoundException("Post not found!")
+        }
+
+        if (user) {
+            const isSaved = user.savedPosts.some(savedPost => savedPost.post.id === post.id);
+            post.isSaved = isSaved;
+        } else {
+            post.isSaved = false;
         }
 
         return post;
@@ -175,5 +196,7 @@ export class PostsService {
 
         return { success: true, message: `Post ${post.published ? 'published' : 'unpublished'} successfully!` };
     }
+
+
 
 }

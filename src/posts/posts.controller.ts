@@ -19,11 +19,12 @@ export class PostsController {
     ) { }
 
     @Get()
-    @Auth(AuthType.None)
+    @Auth(AuthType.Bearer, AuthType.None)
     findAll(
-        @Query() paginationQueryDto: PaginationQueryDto
+        @Query() paginationQueryDto: PaginationQueryDto,
+        @ActiveUser() user?: ActiveUserData
     ) {
-        return this.postsService.findAll(paginationQueryDto);
+        return this.postsService.findAll(paginationQueryDto, user);
     }
 
     @Get(':id')
@@ -35,11 +36,12 @@ export class PostsController {
     }
 
     @Get('slug/:slug')
-    @Auth(AuthType.None)
+    @Auth(AuthType.Bearer, AuthType.None)
     findBySlug(
-        @Param('slug') slug: string
+        @Param('slug') slug: string,
+        @ActiveUser() user?: ActiveUserData
     ) {
-        return this.postsService.findBySlug(slug);
+        return this.postsService.findBySlug(slug, user);
     }
 
     @UseInterceptors(

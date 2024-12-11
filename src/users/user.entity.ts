@@ -1,5 +1,6 @@
 import { Exclude } from "class-transformer";
 import { Post } from "src/posts/post.entity";
+import { SavedPosts } from "src/saved-posts/saved-posts.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
@@ -63,6 +64,12 @@ export class User {
         (post) => post.author
     )
     posts: Post[];
+
+    @OneToMany(
+        () => SavedPosts,
+        (savedPosts) => savedPosts.user
+    )
+    savedPosts: SavedPosts[];
 
     postCount?: number;
 }

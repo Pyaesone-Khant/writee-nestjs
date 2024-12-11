@@ -77,4 +77,6 @@ export class Post {
 
     @DeleteDateColumn()
     deletedAt?: Date;
+
+    isSaved: boolean;
 }
