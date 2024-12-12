@@ -1,6 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseInterceptors } from '@nestjs/common';
+import { ActiveUser } from 'src/auth/decorators/active-user.decorator';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { AuthType } from 'src/auth/enums/auth-type.enum';
+import { ActiveUserData } from 'src/auth/interfaces/active-user-data.interface';
 import { SlugChangerInterceptor } from 'src/common/interceptors/slug-changer.interceptor';
 import { PaginationQueryDto } from 'src/common/pagination/dto/pagination-query.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -48,12 +50,13 @@ export class CategoriesController {
     }
 
     @Get(':slug/posts')
-    @Auth(AuthType.None)
+    @Auth(AuthType.Bearer, AuthType.None)
     findPosts(
         @Param('slug') slug: string,
-        @Query() paginationQueryDto: PaginationQueryDto
+        @Query() paginationQueryDto: PaginationQueryDto,
+        @ActiveUser() activeUser?: ActiveUserData
     ) {
-        return this.categoriesService.findPosts(slug, paginationQueryDto);
+        return this.categoriesService.findPosts(slug, paginationQueryDto, activeUser);
     }
 
     @UseInterceptors(SlugChangerInterceptor)

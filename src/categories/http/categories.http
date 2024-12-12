@@ -5,7 +5,9 @@ GET http://localhost:3000/api/categories/1
 
 
 
-GET http://localhost:3000/api/categories/javascript/posts
+GET http://localhost:3000/api/categories/react/posts
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoicHlhZXBza0BnbWFpbC5jb20iLCJpYXQiOjE3MzM5OTcxNjksImV4cCI6MTczNDAwMDc2OSwiYXVkIjoibG9jYWxob3N0IiwiaXNzIjoibG9jYWxob3N0In0.HpH05qdI5Makqcaiy8lwAawVT0AKSSD1aBmp9p01_BY
+
 
 GET http://localhost:3000/api/categories/popular
 

@@ -87,6 +87,24 @@ export class PostsController {
     ) {
         return this.postsService.remove(id);
     }
+
+    @Post(':id/save')
+    @Auth(AuthType.Bearer)
+    save(
+        @Param('id') id: number,
+        @ActiveUser() activeUser: ActiveUserData
+    ) {
+        return this.postsService.savePost(id, activeUser)
+    }
+
+    @Post(':id/unsave')
+    @Auth(AuthType.Bearer)
+    unsave(
+        @Param('id') id: number,
+        @ActiveUser() activeUser: ActiveUserData
+    ) {
+        return this.postsService.unsavePost(id, activeUser)
+    }
 }
 
 

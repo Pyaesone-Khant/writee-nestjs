@@ -54,15 +54,7 @@ export class PostsService {
             throw new RequestTimeoutException();
         }
 
-        const data = posts?.map(post => {
-            if (user) {
-                const isSaved = user.savedPosts.some(savedPost => savedPost.post.id === post.id);
-                post.isSaved = isSaved;
-            } else {
-                post.isSaved = false;
-            }
-            return post;
-        });
+        const data = this.usersService.transformUserSavedPosts(posts, user);
 
         const meta = {
             totalItems,
@@ -139,18 +131,13 @@ export class PostsService {
             throw new NotFoundException("Post not found!")
         }
 
-        if (user) {
-            const isSaved = user.savedPosts.some(savedPost => savedPost.post.id === post.id);
-            post.isSaved = isSaved;
-        } else {
-            post.isSaved = false;
-        }
+        post.isSaved = this.usersService.checkIfUserSavedPost(post, user)
 
         return post;
     }
 
-    async findPostsByCategory(category: string, paginationQueryDto: PaginationQueryDto): Promise<Paginated<Post>> {
-        return await this.findPostsByCategoryProvider.findPostsByCategory(category, paginationQueryDto)
+    async findPostsByCategory(category: string, paginationQueryDto: PaginationQueryDto, activeUser?: ActiveUserData): Promise<Paginated<Post>> {
+        return await this.findPostsByCategoryProvider.findPostsByCategory(category, paginationQueryDto, activeUser)
     }
 
     async search(q: string): Promise<Post[]> {
@@ -197,6 +184,13 @@ export class PostsService {
         return { success: true, message: `Post ${post.published ? 'published' : 'unpublished'} successfully!` };
     }
 
+    async savePost(id: number, user: ActiveUserData): Promise<object> {
+        const post: Post = await this.findOne(id);
+        return await this.usersService.savePost(user.sub, post)
+    }
 
-
+    async unsavePost(id: number, user: ActiveUserData): Promise<object> {
+        const post: Post = await this.findOne(id);
+        return await this.usersService.unsavePost(user.sub, post)
+    }
 }

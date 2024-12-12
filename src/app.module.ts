@@ -18,7 +18,6 @@ import { MailModule } from './mail/mail.module';
 import { PostsModule } from './posts/posts.module';
 import { SearchModule } from './search/search.module';
 import { UsersModule } from './users/users.module';
-import { SavedPostsModule } from './saved-posts/saved-posts.module';
 
 const ENV = process.env.NODE_ENV || 'development';
 @Global()
@@ -55,7 +54,6 @@ const ENV = process.env.NODE_ENV || 'development';
         JwtModule.registerAsync(jwtConfig.asProvider()),
         SearchModule,
         MailModule,
-        SavedPostsModule
     ],
     controllers: [
         AppController,

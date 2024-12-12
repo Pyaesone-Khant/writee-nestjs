@@ -1,7 +1,6 @@
 import { Exclude } from "class-transformer";
 import { Post } from "src/posts/post.entity";
-import { SavedPosts } from "src/saved-posts/saved-posts.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class User {
@@ -65,11 +64,12 @@ export class User {
     )
     posts: Post[];
 
-    @OneToMany(
-        () => SavedPosts,
-        (savedPosts) => savedPosts.user
+    @ManyToMany(
+        () => Post,
+        (post) => post.id,
     )
-    savedPosts: SavedPosts[];
+    @JoinTable({ name: "saved_posts" })
+    savedPosts: Post[]
 
     postCount?: number;
 }

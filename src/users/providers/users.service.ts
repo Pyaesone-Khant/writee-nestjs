@@ -63,7 +63,7 @@ export class UsersService {
         try {
             user = await this.userRepository.findOne({
                 where: { id },
-                relations: ['savedPosts', 'savedPosts.post']
+                relations: ['savedPosts'],
             })
         } catch (error) {
             throw new RequestTimeoutException();
@@ -77,11 +77,11 @@ export class UsersService {
         let user: User | undefined;
 
         try {
-            user = await this.userRepository
-                .createQueryBuilder('user')
-                .where('user.username = :username', { username })
-                .loadRelationCountAndMap('user.postCount', 'user.posts')
-                .getOne()
+            user = await this.userRepository.findOne({
+                where: {
+                    username
+                },
+            })
         } catch (error) {
             throw new RequestTimeoutException()
         }
@@ -138,7 +138,6 @@ export class UsersService {
         } catch (error) {
             throw new RequestTimeoutException()
         }
-
         return user;
     }
 
@@ -159,5 +158,78 @@ export class UsersService {
 
     async findPopularAuthors(): Promise<User[]> {
         return await this.findPopularAuthorsProvider.findPopularAuthors();
+    }
+
+    async savePost(userId: number, post: Post): Promise<object> {
+        const user: User | undefined = await this.findOne(userId);
+
+        if (!user) {
+            throw new NotFoundException("User not found!")
+        }
+
+        if (this.checkIfUserSavedPost(post, user)) {
+            return { success: false, message: "Post already saved!" }
+        }
+
+        user.savedPosts.push(post)
+        try {
+            await this.userRepository.save(user)
+        } catch (error) {
+            throw new RequestTimeoutException()
+        }
+
+        return { success: true, message: "Post saved successfully!" }
+    }
+
+    async unsavePost(userId: number, post: Post): Promise<object> {
+        const user: User | undefined = await this.findOne(userId);
+
+        if (!user) {
+            throw new NotFoundException("User not found!")
+        }
+
+        if (!this.checkIfUserSavedPost(post, user)) {
+            return { success: false, message: "Post not saved!" }
+        }
+
+        user.savedPosts = user.savedPosts.filter(savedPost => savedPost.id !== post.id)
+        try {
+            await this.userRepository.save(user)
+        } catch (error) {
+            throw new RequestTimeoutException()
+        }
+
+        return { success: true, message: "Post unsaved successfully!" }
+    }
+
+    async findSavedPosts(userId: number): Promise<Post[]> {
+        let posts: Post[] | [];
+
+        try {
+            posts = await this.userRepository.createQueryBuilder('user')
+                .where('user.id = :userId', { userId })
+                .leftJoinAndSelect('user.savedPosts', 'savedPosts')
+                .getOne()
+                .then(user => user?.savedPosts);
+        } catch (error) {
+            throw new RequestTimeoutException()
+        }
+
+        return posts;
+    }
+
+    checkIfUserSavedPost(post: Post, user?: User): boolean {
+        return user.savedPosts.some(savedPost => savedPost.id === post.id)
+    }
+
+    transformUserSavedPosts(posts: Post[], user?: User): Post[] {
+        return posts.map(post => {
+            if (user) {
+                post.isSaved = this.checkIfUserSavedPost(post, user)
+            } else {
+                post.isSaved = false
+            }
+            return post
+        })
     }
 }

@@ -69,6 +69,12 @@ export class Post {
     })
     categories: Category[]
 
+    @ManyToMany(
+        () => User,
+        (user) => user.savedPosts,
+    )
+    savedBy: User[];
+
     @CreateDateColumn()
     createdAt: Date;
 
