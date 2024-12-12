@@ -105,6 +105,24 @@ export class PostsController {
     ) {
         return this.postsService.unsavePost(id, activeUser)
     }
+
+    @Post(':id/like')
+    @Auth(AuthType.Bearer)
+    like(
+        @Param('id') id: number,
+        @ActiveUser() activeUser: ActiveUserData
+    ) {
+        return this.postsService.likePost(id, activeUser)
+    }
+
+    @Post(':id/unlike')
+    @Auth(AuthType.Bearer)
+    unlike(
+        @Param('id') id: number,
+        @ActiveUser() activeUser: ActiveUserData
+    ) {
+        return this.postsService.unlikePost(id, activeUser)
+    }
 }
 
 

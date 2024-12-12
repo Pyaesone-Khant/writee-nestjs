@@ -16,6 +16,8 @@ import { ChangePasswordProvider } from './change-password.provider';
 import { ChangeUsernameProvider } from './change-username.provider';
 import { CreateUserProvider } from './create-user.provider';
 import { FindPopularAuthorsProvider } from './find-popular-authors.provider';
+import { LikePostsProvider } from './like-posts.provider';
+import { SavePostsProvider } from './save-posts.provider';
 
 @Injectable()
 export class UsersService {
@@ -36,7 +38,11 @@ export class UsersService {
 
         private readonly changeEmailProvider: ChangeEmailProvider,
 
-        private readonly findPopularAuthorsProvider: FindPopularAuthorsProvider
+        private readonly findPopularAuthorsProvider: FindPopularAuthorsProvider,
+
+        private readonly savePostsProvider: SavePostsProvider,
+
+        private readonly likePostsProvider: LikePostsProvider
 
     ) { }
 
@@ -63,7 +69,7 @@ export class UsersService {
         try {
             user = await this.userRepository.findOne({
                 where: { id },
-                relations: ['savedPosts'],
+                relations: ['savedPosts', 'likedPosts'],
             })
         } catch (error) {
             throw new RequestTimeoutException();
@@ -81,6 +87,7 @@ export class UsersService {
                 where: {
                     username
                 },
+                relations: ['savedPosts']
             })
         } catch (error) {
             throw new RequestTimeoutException()
@@ -161,75 +168,28 @@ export class UsersService {
     }
 
     async savePost(userId: number, post: Post): Promise<object> {
-        const user: User | undefined = await this.findOne(userId);
-
-        if (!user) {
-            throw new NotFoundException("User not found!")
-        }
-
-        if (this.checkIfUserSavedPost(post, user)) {
-            return { success: false, message: "Post already saved!" }
-        }
-
-        user.savedPosts.push(post)
-        try {
-            await this.userRepository.save(user)
-        } catch (error) {
-            throw new RequestTimeoutException()
-        }
-
-        return { success: true, message: "Post saved successfully!" }
+        return await this.savePostsProvider.savePost(userId, post)
     }
 
     async unsavePost(userId: number, post: Post): Promise<object> {
-        const user: User | undefined = await this.findOne(userId);
-
-        if (!user) {
-            throw new NotFoundException("User not found!")
-        }
-
-        if (!this.checkIfUserSavedPost(post, user)) {
-            return { success: false, message: "Post not saved!" }
-        }
-
-        user.savedPosts = user.savedPosts.filter(savedPost => savedPost.id !== post.id)
-        try {
-            await this.userRepository.save(user)
-        } catch (error) {
-            throw new RequestTimeoutException()
-        }
-
-        return { success: true, message: "Post unsaved successfully!" }
+        return await this.savePostsProvider.unsavePost(userId, post)
     }
 
     async findSavedPosts(userId: number): Promise<Post[]> {
-        let posts: Post[] | [];
-
-        try {
-            posts = await this.userRepository.createQueryBuilder('user')
-                .where('user.id = :userId', { userId })
-                .leftJoinAndSelect('user.savedPosts', 'savedPosts')
-                .getOne()
-                .then(user => user?.savedPosts);
-        } catch (error) {
-            throw new RequestTimeoutException()
-        }
-
-        return posts;
+        return await this.savePostsProvider.findSavedPosts(userId)
     }
 
-    checkIfUserSavedPost(post: Post, user?: User): boolean {
-        return user.savedPosts.some(savedPost => savedPost.id === post.id)
+    async likePost(userId: number, post: Post): Promise<object> {
+        return await this.likePostsProvider.likePost(userId, post);
     }
 
-    transformUserSavedPosts(posts: Post[], user?: User): Post[] {
-        return posts.map(post => {
-            if (user) {
-                post.isSaved = this.checkIfUserSavedPost(post, user)
-            } else {
-                post.isSaved = false
-            }
-            return post
-        })
+    async unlikePost(userId: number, post: Post): Promise<object> {
+        return await this.likePostsProvider.unlikePost(userId, post);
+    }
+
+    transformUserPost(post: Post, user?: User): Post {
+        post.isLiked = this.likePostsProvider.checkIfUserLikedPost(post, user);
+        post.isSaved = this.savePostsProvider.checkIfUserSavedPost(post, user);
+        return post;
     }
 }

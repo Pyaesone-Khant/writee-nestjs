@@ -54,7 +54,7 @@ export class PostsService {
             throw new RequestTimeoutException();
         }
 
-        const data = this.usersService.transformUserSavedPosts(posts, user);
+        const data = posts.map(post => this.usersService.transformUserPost(post, user))
 
         const meta = {
             totalItems,
@@ -131,9 +131,7 @@ export class PostsService {
             throw new NotFoundException("Post not found!")
         }
 
-        post.isSaved = this.usersService.checkIfUserSavedPost(post, user)
-
-        return post;
+        return this.usersService.transformUserPost(post, user)
     }
 
     async findPostsByCategory(category: string, paginationQueryDto: PaginationQueryDto, activeUser?: ActiveUserData): Promise<Paginated<Post>> {
@@ -192,5 +190,15 @@ export class PostsService {
     async unsavePost(id: number, user: ActiveUserData): Promise<object> {
         const post: Post = await this.findOne(id);
         return await this.usersService.unsavePost(user.sub, post)
+    }
+
+    async likePost(id: number, user: ActiveUserData): Promise<object> {
+        const post: Post = await this.findOne(id);
+        return await this.usersService.likePost(user.sub, post)
+    }
+
+    async unlikePost(id: number, user: ActiveUserData): Promise<object> {
+        const post: Post = await this.findOne(id);
+        return await this.usersService.unlikePost(user.sub, post)
     }
 }

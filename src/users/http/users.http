@@ -1,7 +1,8 @@
 GET http://localhost:3000/api/users
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoid29vZGlAZ21haWwuY29tIiwiaWF0IjoxNzMyNzYzMzQxLCJleHAiOjE3MzI3NjY5NDEsImF1ZCI6ImxvY2FsaG9zdCIsImlzcyI6ImxvY2FsaG9zdCJ9.7Tkxpby5Si1eOOWH_FrSBZaBEEj0_YbBKaTjGhDVhrk
 
-GET http://localhost:3000/api/users/3
+GET http://localhost:3000/api/users/me/saved-posts
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoicHlhZXBza0BnbWFpbC5jb20iLCJpYXQiOjE3MzQwMTY1NzAsImV4cCI6MTczNDAyMDE3MCwiYXVkIjoibG9jYWxob3N0IiwiaXNzIjoibG9jYWxob3N0In0.GSsbfR5_TKpaEs3ToTLdwD_iClAcobJep5SfhM50X48
 
 GET http://localhost:3000/api/users/mario_m/details
 

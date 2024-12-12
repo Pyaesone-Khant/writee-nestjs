@@ -71,9 +71,9 @@ export class Post {
 
     @ManyToMany(
         () => User,
-        (user) => user.savedPosts,
+        (user) => user.likedPosts,
     )
-    savedBy: User[];
+    likedBy: User[]
 
     @CreateDateColumn()
     createdAt: Date;
@@ -84,5 +84,7 @@ export class Post {
     @DeleteDateColumn()
     deletedAt?: Date;
 
-    isSaved: boolean;
+    isSaved: boolean = false;
+
+    isLiked: boolean = false;
 }

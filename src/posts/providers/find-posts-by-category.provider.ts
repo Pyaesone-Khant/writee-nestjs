@@ -48,7 +48,7 @@ export class FindPostsByCategoryProvider {
         }
 
         const response: Paginated<Post> = {
-            data: this.usersService.transformUserSavedPosts(posts, user),
+            data: posts.map(post => this.usersService.transformUserPost(post, user)),
             meta: {
                 totalItems: postsCount,
                 itemsPerPage: limit,
