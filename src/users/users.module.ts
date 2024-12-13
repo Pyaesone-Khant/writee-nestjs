@@ -6,13 +6,12 @@ import { ChangeEmailProvider } from './providers/change-email.provider';
 import { ChangePasswordProvider } from './providers/change-password.provider';
 import { ChangeUsernameProvider } from './providers/change-username.provider';
 import { CreateUserProvider } from './providers/create-user.provider';
+import { FindPopularAuthorsProvider } from './providers/find-popular-authors.provider';
 import { FindPostsByUserProvider } from './providers/find-posts-by-user.provider';
+import { SavePostsProvider } from './providers/save-posts.provider';
 import { UsersService } from './providers/users.service';
 import { User } from './user.entity';
 import { UsersController } from './users.controller';
-import { FindPopularAuthorsProvider } from './providers/find-popular-authors.provider';
-import { LikePostsProvider } from './providers/like-posts.provider';
-import { SavePostsProvider } from './providers/save-posts.provider';
 
 @Module({
     imports: [
@@ -29,7 +28,6 @@ import { SavePostsProvider } from './providers/save-posts.provider';
         ChangeEmailProvider,
         ChangeUsernameProvider,
         FindPopularAuthorsProvider,
-        LikePostsProvider,
         SavePostsProvider,
     ],
     exports: [

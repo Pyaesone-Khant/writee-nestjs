@@ -71,9 +71,10 @@ export class Post {
 
     @ManyToMany(
         () => User,
-        (user) => user.likedPosts,
+        (user) => user.id,
     )
-    likedBy: User[]
+    @JoinTable({ name: "liked_posts" })
+    likes: User[]
 
     @CreateDateColumn()
     createdAt: Date;
@@ -86,5 +87,5 @@ export class Post {
 
     isSaved: boolean = false;
 
-    isLiked: boolean = false;
+    isLiked: boolean;
 }

@@ -8,11 +8,18 @@ import { PostsController } from './posts.controller';
 import { CreatePostProvider } from './providers/create-post.provider';
 import { FindPostsByCategoryProvider } from './providers/find-posts-by-category.provider';
 import { PostsService } from './providers/posts.service';
+import { ReactPostsProvider } from './providers/react-posts.provider';
 import { UpdatePostProvider } from './providers/update-post.provider';
 
 @Module({
     controllers: [PostsController],
-    providers: [PostsService, CreatePostProvider, UpdatePostProvider, FindPostsByCategoryProvider],
+    providers: [
+        PostsService,
+        CreatePostProvider,
+        UpdatePostProvider,
+        FindPostsByCategoryProvider,
+        ReactPostsProvider
+    ],
     imports: [
         TypeOrmModule.forFeature([Post]),
         PaginationModule,

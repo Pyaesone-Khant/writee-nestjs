@@ -11,6 +11,7 @@ import { UpdatePostDto } from '../dto/update-post.dto';
 import { Post } from '../post.entity';
 import { CreatePostProvider } from './create-post.provider';
 import { FindPostsByCategoryProvider } from './find-posts-by-category.provider';
+import { ReactPostsProvider } from './react-posts.provider';
 import { UpdatePostProvider } from './update-post.provider';
 
 @Injectable()
@@ -27,6 +28,8 @@ export class PostsService {
         private readonly findPostsByCategoryProvider: FindPostsByCategoryProvider,
 
         private readonly usersService: UsersService,
+
+        private readonly reactPostsProvider: ReactPostsProvider
     ) { }
 
     async findAll(paginationQueryDto: PaginationQueryDto, activeUser?: ActiveUserData): Promise<Paginated<Post>> {
@@ -71,7 +74,8 @@ export class PostsService {
 
         try {
             post = await this.postRepository.findOne({
-                where: { id }
+                where: { id },
+                relations: ['categories', 'author', 'likes']
             })
         } catch (error) {
             throw new RequestTimeoutException()
@@ -117,11 +121,12 @@ export class PostsService {
     async findBySlug(slug: string, activeUser?: ActiveUserData): Promise<Post> {
         let post: Post | undefined;
 
-        const user = activeUser && await this.usersService.findOne(activeUser.sub)
+        const user = activeUser && await this.usersService.findOne(activeUser.sub);
 
         try {
             post = await this.postRepository.findOne({
-                where: { slug }
+                where: { slug },
+                relations: ['categories', 'author', 'likes'],
             })
         } catch (error) {
             throw new RequestTimeoutException()
@@ -131,7 +136,8 @@ export class PostsService {
             throw new NotFoundException("Post not found!")
         }
 
-        return this.usersService.transformUserPost(post, user)
+        post.isLiked = this.reactPostsProvider.checkIfUserReacted(post, user);
+        return this.usersService.transformUserPost(post, user);
     }
 
     async findPostsByCategory(category: string, paginationQueryDto: PaginationQueryDto, activeUser?: ActiveUserData): Promise<Paginated<Post>> {
@@ -182,23 +188,18 @@ export class PostsService {
         return { success: true, message: `Post ${post.published ? 'published' : 'unpublished'} successfully!` };
     }
 
-    async savePost(id: number, user: ActiveUserData): Promise<object> {
+    async save(id: number, user: ActiveUserData): Promise<object> {
         const post: Post = await this.findOne(id);
         return await this.usersService.savePost(user.sub, post)
     }
 
-    async unsavePost(id: number, user: ActiveUserData): Promise<object> {
-        const post: Post = await this.findOne(id);
-        return await this.usersService.unsavePost(user.sub, post)
+    async findReations(id: number): Promise<User[]> {
+        const post: Post | undefined = await this.findOne(id);
+        return post.likes;
     }
 
-    async likePost(id: number, user: ActiveUserData): Promise<object> {
-        const post: Post = await this.findOne(id);
-        return await this.usersService.likePost(user.sub, post)
-    }
-
-    async unlikePost(id: number, user: ActiveUserData): Promise<object> {
-        const post: Post = await this.findOne(id);
-        return await this.usersService.unlikePost(user.sub, post)
+    async react(id: number, activeUser: ActiveUserData): Promise<object> {
+        const user: User = await this.usersService.findOne(activeUser.sub);
+        return await this.reactPostsProvider.react(id, user)
     }
 }

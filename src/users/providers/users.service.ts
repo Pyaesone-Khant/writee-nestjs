@@ -16,7 +16,6 @@ import { ChangePasswordProvider } from './change-password.provider';
 import { ChangeUsernameProvider } from './change-username.provider';
 import { CreateUserProvider } from './create-user.provider';
 import { FindPopularAuthorsProvider } from './find-popular-authors.provider';
-import { LikePostsProvider } from './like-posts.provider';
 import { SavePostsProvider } from './save-posts.provider';
 
 @Injectable()
@@ -41,8 +40,6 @@ export class UsersService {
         private readonly findPopularAuthorsProvider: FindPopularAuthorsProvider,
 
         private readonly savePostsProvider: SavePostsProvider,
-
-        private readonly likePostsProvider: LikePostsProvider
 
     ) { }
 
@@ -69,7 +66,7 @@ export class UsersService {
         try {
             user = await this.userRepository.findOne({
                 where: { id },
-                relations: ['savedPosts', 'likedPosts'],
+                relations: ['savedPosts'],
             })
         } catch (error) {
             throw new RequestTimeoutException();
@@ -87,7 +84,6 @@ export class UsersService {
                 where: {
                     username
                 },
-                relations: ['savedPosts']
             })
         } catch (error) {
             throw new RequestTimeoutException()
@@ -171,24 +167,11 @@ export class UsersService {
         return await this.savePostsProvider.savePost(userId, post)
     }
 
-    async unsavePost(userId: number, post: Post): Promise<object> {
-        return await this.savePostsProvider.unsavePost(userId, post)
-    }
-
     async findSavedPosts(userId: number): Promise<Post[]> {
         return await this.savePostsProvider.findSavedPosts(userId)
     }
 
-    async likePost(userId: number, post: Post): Promise<object> {
-        return await this.likePostsProvider.likePost(userId, post);
-    }
-
-    async unlikePost(userId: number, post: Post): Promise<object> {
-        return await this.likePostsProvider.unlikePost(userId, post);
-    }
-
     transformUserPost(post: Post, user?: User): Post {
-        post.isLiked = this.likePostsProvider.checkIfUserLikedPost(post, user);
         post.isSaved = this.savePostsProvider.checkIfUserSavedPost(post, user);
         return post;
     }

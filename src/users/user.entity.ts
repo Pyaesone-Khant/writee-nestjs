@@ -71,12 +71,5 @@ export class User {
     @JoinTable({ name: "saved_posts" })
     savedPosts: Post[]
 
-    @ManyToMany(
-        () => Post,
-        (post) => post.id,
-    )
-    @JoinTable({ name: "liked_posts" })
-    likedPosts: Post[]
-
     postCount?: number;
 }

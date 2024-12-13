@@ -32,6 +32,14 @@ export class UsersController {
         return this.usersService.findPopularAuthors();
     }
 
+    @Get('/me')
+    @Auth(AuthType.Bearer)
+    findMe(
+        @ActiveUser() user: ActiveUserData
+    ) {
+        return this.usersService.findOne(user.sub);
+    }
+
     @Get('/me/saved-posts')
     @Auth(AuthType.Bearer)
     findSavedPosts(

@@ -39,9 +39,9 @@ export class PostsController {
     @Auth(AuthType.Bearer, AuthType.None)
     findBySlug(
         @Param('slug') slug: string,
-        @ActiveUser() user?: ActiveUserData
+        @ActiveUser() activeUser?: ActiveUserData
     ) {
-        return this.postsService.findBySlug(slug, user);
+        return this.postsService.findBySlug(slug, activeUser);
     }
 
     @UseInterceptors(
@@ -94,34 +94,24 @@ export class PostsController {
         @Param('id') id: number,
         @ActiveUser() activeUser: ActiveUserData
     ) {
-        return this.postsService.savePost(id, activeUser)
+        return this.postsService.save(id, activeUser)
     }
 
-    @Post(':id/unsave')
-    @Auth(AuthType.Bearer)
-    unsave(
-        @Param('id') id: number,
-        @ActiveUser() activeUser: ActiveUserData
+    @Get(':id/reactions')
+    @Auth(AuthType.None)
+    findReactions(
+        @Param('id') id: number
     ) {
-        return this.postsService.unsavePost(id, activeUser)
+        return this.postsService.findReations(id)
     }
 
-    @Post(':id/like')
+    @Post(':id/react')
     @Auth(AuthType.Bearer)
     like(
         @Param('id') id: number,
         @ActiveUser() activeUser: ActiveUserData
     ) {
-        return this.postsService.likePost(id, activeUser)
-    }
-
-    @Post(':id/unlike')
-    @Auth(AuthType.Bearer)
-    unlike(
-        @Param('id') id: number,
-        @ActiveUser() activeUser: ActiveUserData
-    ) {
-        return this.postsService.unlikePost(id, activeUser)
+        return this.postsService.react(id, activeUser)
     }
 }
 

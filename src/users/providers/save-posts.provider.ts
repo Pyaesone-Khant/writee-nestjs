@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, RequestTimeoutException } from '@nestjs/common';
+import { Injectable, RequestTimeoutException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from 'src/posts/post.entity';
 import { Repository } from 'typeorm';
@@ -44,11 +44,12 @@ export class SavePostsProvider {
             throw new RequestTimeoutException();
         }
 
-        if (this.checkIfUserSavedPost(post, user)) {
-            throw new BadRequestException('Post already saved!')
+        const isSaved = this.checkIfUserSavedPost(post, user);
+        if (isSaved) {
+            user.savedPosts = user.savedPosts.filter(savedPost => savedPost.id !== post.id);
+        } else {
+            user.savedPosts.push(post);
         }
-
-        user.savedPosts.push(post);
 
         try {
             await this.userRepository.save(user);
@@ -59,37 +60,6 @@ export class SavePostsProvider {
         return {
             success: true,
             message: 'Post saved successfully!'
-        }
-    }
-
-    async unsavePost(userId: number, post: Post): Promise<object> {
-        let user: User | undefined;
-
-        try {
-            user = await this.userRepository.findOne({
-                where: {
-                    id: userId
-                },
-                relations: ['savedPosts']
-            })
-        } catch (error) {
-            throw new RequestTimeoutException();
-        }
-
-        if (!this.checkIfUserSavedPost(post, user)) {
-            throw new BadRequestException('Post not saved!')
-        }
-
-        user.savedPosts = user.savedPosts.filter(savedPost => savedPost.id !== post.id)
-        try {
-            await this.userRepository.save(user)
-        } catch (error) {
-            throw new RequestTimeoutException()
-        }
-
-        return {
-            success: true,
-            message: 'Post unsaved successfully!'
         }
     }
 
